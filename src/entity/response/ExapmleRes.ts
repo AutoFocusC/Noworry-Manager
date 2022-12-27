@@ -1,0 +1,1 @@
+export type ExampleData = Array<[string, number, number, number, number, number]>

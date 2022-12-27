@@ -1,0 +1,21 @@
+/* 本地字体文件示例 */
+@font-face {
+    font-family: 'Montserrat Medium';
+    src: url("@/assets/font/Montserrat_Medium.otf");
+    /* unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; */
+}
+
+/* 在线字体文件示例 */
+@font-face {
+    font-family: 'SY-normal';
+    font-display: swap;
+    src: url('//at.alicdn.com/t/webfont_0q82cltaxst.eot');
+    /* IE9*/
+    src: url('//at.alicdn.com/t/webfont_0q82cltaxst.eot?#iefix') format('embedded-opentype'),
+        /* IE6-IE8 */
+        url('//at.alicdn.com/t/webfont_0q82cltaxst.woff2') format('woff2'),
+        url('//at.alicdn.com/t/webfont_0q82cltaxst.woff') format('woff'),
+        /* chrome、firefox */
+        url('//at.alicdn.com/t/webfont_0q82cltaxst.ttf') format('truetype'),
+        /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/
+}

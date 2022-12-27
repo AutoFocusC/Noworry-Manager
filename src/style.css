@@ -1,0 +1,6 @@
+@import url("./assets/font/font.css");
+
+/* 全局字体配置 */
+* {
+    font-family: "SY-normal", Helvetica, "Microsoft YaHei", Arial, sans-serif;
+}
