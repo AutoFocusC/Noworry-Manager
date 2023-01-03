@@ -1,298 +1,116 @@
 <template>
-  <div class="home">
-    <div class="show_unit banner-1">
-      <div class="title">Invest with AI</div>
-      <div class="subtitle">AI brings new insights in trading strategy</div>
-      <div class="learn-botton">LEARN MORE</div>
+  <div class="menu">
+    <div class="menu-item" @click="toCommodity()">
+      <n-icon class="icon" size="100">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+          <path
+            d="M936.2432 392.3456l-30.3616-161.536c-13.8752-73.728-82.3808-127.2832-162.9184-127.2832H287.3856c-80.5376 0-149.0432 53.504-162.9184 127.2832l-30.3616 161.536c-11.3152 60.2624 13.568 120.3712 63.744 156.2112v217.8048c0 85.7088 69.7344 155.4432 155.4432 155.4432h403.7632c85.7088 0 155.4432-69.7344 155.4432-155.4432v-217.8048c50.176-35.7888 75.0592-95.9488 63.744-156.2112z m-219.1872 468.0704H313.2928c-51.8144 0-94.0032-42.1888-94.0032-94.0032v-190.0032c14.2848 3.4816 29.0304 5.3248 44.032 5.3248 48.1792 0 93.44-18.3296 125.952-50.0736 32.512 31.744 77.7216 50.0736 125.9008 50.0736s93.44-18.3296 125.952-50.0736c32.512 31.744 77.7216 50.0736 125.952 50.0736 15.0016 0 29.7472-1.8944 44.032-5.3248v190.0032c-0.0512 51.8144-42.24 94.0032-94.0544 94.0032z m113.92-357.888c-18.8416 11.6224-40.96 17.7664-63.9488 17.7664-38.8608 0-74.4448-17.5616-95.2832-46.9504a37.7344 37.7344 0 0 0-30.6688-15.872 37.7344 37.7344 0 0 0-30.6688 15.872c-20.7872 29.3888-56.3712 46.8992-95.232 46.8992s-74.4448-17.5616-95.2832-46.9504a37.7344 37.7344 0 0 0-30.6688-15.872 37.7344 37.7344 0 0 0-30.6688 15.872c-20.7872 29.3888-56.4224 46.8992-95.2832 46.8992-22.9888 0-45.1072-6.144-63.9488-17.7664-34.56-21.3504-52.1728-60.1088-44.9024-98.816L184.832 242.176c8.3968-44.6976 51.5072-77.1584 102.5536-77.1584h455.5776c50.9952 0 94.1568 32.4608 102.5536 77.1584l30.3616 161.536c7.2704 38.7072-10.3936 77.4656-44.9024 98.816z"
+            fill="#333333"
+          />
+          <path
+            d="M658.0224 795.1872H372.2752c-20.6336 0-37.3248-16.6912-37.3248-37.3248v-51.4048c0-20.6336 16.6912-37.3248 37.3248-37.3248h285.7472c20.6336 0 37.3248 16.6912 37.3248 37.3248v51.4048c0 20.5824-16.6912 37.3248-37.3248 37.3248z"
+            fill="#F55C04"
+          />
+        </svg>
+      </n-icon>
+      <div>商品管理</div>
     </div>
-    <div class="center-banner">
-      <div class="title">WE KNOW THE MARKET</div>
-      <div class="describe">
-        Understand the market in one more smart, swift, and accurate way.
-      </div>
+    <div class="menu-item" @click="toOrder()">
+      <n-icon class="icon" size="100">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+          <path
+            d="M678.4 917.8112H345.3952c-119.3984 0-216.576-97.1776-216.576-216.576V368.1792c0-119.3984 97.1776-216.576 216.576-216.576h333.0048c119.3984 0 216.576 97.1264 216.576 216.576v333.0048c0 119.4496-97.1776 216.6272-216.576 216.6272zM345.3952 213.0944c-85.5552 0-155.136 69.5808-155.136 155.136v333.0048c0 85.5552 69.5808 155.136 155.136 155.136h333.0048c85.5552 0 155.136-69.5808 155.136-155.136V368.1792c0-85.5552-69.5808-155.136-155.136-155.136H345.3952z"
+            fill="#333333"
+          />
+          <path
+            d="M622.3872 249.9072H401.408c-24.4736 0-44.3392-19.8656-44.3392-44.3392V151.1936c0-24.4736 19.8656-44.3392 44.3392-44.3392h220.9792c24.4736 0 44.3392 19.8656 44.3392 44.3392v54.3744c0 24.4736-19.8656 44.3392-44.3392 44.3392z"
+            fill="#F55C04"
+          />
+          <path
+            d="M563.3024 469.76H327.6288c-16.9472 0-30.72-13.7728-30.72-30.72s13.7728-30.72 30.72-30.72h235.7248c16.9472 0 30.72 13.7728 30.72 30.72s-13.7728 30.72-30.7712 30.72zM696.1664 668.3648H327.6288c-16.9472 0-30.72-13.7728-30.72-30.72s13.7728-30.72 30.72-30.72h368.5376c16.9472 0 30.72 13.7728 30.72 30.72s-13.7728 30.72-30.72 30.72z"
+            fill="#333333"
+          />
+        </svg>
+      </n-icon>
+      <div>订单查看</div>
     </div>
-    <div class="show_unit banner-2">
-      <div class="left">
-        <div class="slogan">Data is Truth</div>
-        <div class="describe">
-          We obtain, store and understand market data from the world's largest
-          cryptocurrency exchange. Based on data without indulging in data. ‍
-        </div>
-        <div class="publicize">
-          More than 3000+ spot and futures contract symbols
-        </div>
-      </div>
-      <div class="right">
-        <div class="slogan">Code is Law</div>
-        <div class="describe">
-          Compared with irrational people, we always believe in algorithms. We
-          continue to improve the trading algorithms in order to obtain the
-          maximum return from the risk.
-        </div>
-        <div class="publicize">
-          CTA, Quantitative selection, Statistical Arbitrage and so on
-        </div>
-      </div>
+    <div class="menu-item">
+      <n-icon class="icon" size="100">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+          <path
+            d="M590.0288 617.2672c44.9024-44.9024 86.2208-155.6992 94.208-245.0432 1.792-19.6608-15.104-35.7888-34.7648-33.9456-96.9728 9.216-199.3728 48.0256-244.8896 93.5424-51.2 51.2-51.2 134.2464 0 185.4464s134.2464 51.2 185.4464 0z"
+            fill="#F55C04"
+          />
+          <path
+            d="M511.0784 920.1664c-225.0752 0-408.1664-183.0912-408.1664-408.1664s183.0912-408.1664 408.1664-408.1664 408.1664 183.0912 408.1664 408.1664-183.0912 408.1664-408.1664 408.1664z m0-754.8928C319.8976 165.2736 164.352 320.8192 164.352 512s155.5456 346.7264 346.7264 346.7264 346.7264-155.5456 346.7264-346.7264-155.5456-346.7264-346.7264-346.7264z"
+            fill="#333333"
+          />
+        </svg>
+      </n-icon>
+      <div>操作指南</div>
+    </div>
+    <div class="menu-item">
+      <n-icon class="icon" size="100">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+          <path
+            d="M510.6688 508.4672m-128.6144 0a128.6144 128.6144 0 1 0 257.2288 0 128.6144 128.6144 0 1 0-257.2288 0Z"
+            fill="#F55C04"
+          />
+          <path
+            d="M663.8592 902.6048c-30.8736 0-61.5936-11.9296-85.6064-34.8672-18.2784-17.4592-42.2912-27.0848-67.584-27.0848s-49.3056 9.6256-67.584 27.0848c-39.5264 37.7344-97.3312 45.6704-143.7696 19.712-3.072-1.6896-6.0928-3.4816-9.1136-5.2224-45.2608-26.7264-68.1472-80.2304-57.0368-133.12 5.12-24.4736 0.8192-49.7152-12.2368-71.0656a97.54112 97.54112 0 0 0-55.9616-42.9568c-51.6096-15.1552-86.9888-62.5152-88.1152-117.9136-0.0512-2.9184-0.0512-5.7856-0.0512-8.704 0-10.8544 0.4096-21.8112 1.2288-32.6144 3.84-50.688 38.4-93.3376 88.1152-108.5952 22.8864-7.0144 42.3424-22.1184 54.8352-42.5984 12.1344-19.8656 16.7936-43.4688 13.056-66.4576-8.0384-49.8176 16.128-100.3008 60.0576-125.696a458.752 458.752 0 0 1 18.3808-10.0352c43.4176-22.3232 96.5632-15.7696 135.424 16.7424 17.5616 14.6944 39.8336 22.784 62.72 22.784s45.2096-8.0896 62.72-22.784c38.8608-32.512 92.0064-39.1168 135.424-16.7424 6.1952 3.1744 12.3904 6.5536 18.3808 10.0352 43.9296 25.3952 68.096 75.8784 60.0576 125.696-3.6864 22.9888 0.9216 46.5408 13.056 66.4576a97.9456 97.9456 0 0 0 54.784 42.5984c49.7152 15.2576 84.3264 57.856 88.1152 108.5952 0.8192 10.8544 1.2288 21.8112 1.2288 32.6144 0 2.9184-0.0512 5.8368-0.1024 8.704-1.1264 55.3472-36.5568 102.7072-88.1152 117.9136a97.54112 97.54112 0 0 0-55.9616 42.9568 97.6896 97.6896 0 0 0-12.2368 71.0656c11.1104 52.8896-11.776 106.3936-57.0368 133.12-3.0208 1.792-6.0416 3.5328-9.1136 5.2224a117.6576 117.6576 0 0 1-57.9584 15.1552z m-153.1904-123.392c41.1648 0 80.2304 15.6672 110.0288 44.0832 19.9168 18.9952 48.5888 23.1936 71.3728 10.496 2.6112-1.4848 5.2224-2.9696 7.8336-4.5056 22.528-13.312 33.8432-40.4992 28.16-67.584a158.65856 158.65856 0 0 1 19.8656-115.712 159.10912 159.10912 0 0 1 91.0848-69.9392c25.344-7.4752 43.4688-32.2048 44.032-60.2112 0.0512-2.5088 0.1024-4.9664 0.1024-7.4752 0-9.2672-0.3584-18.688-1.0752-28.0064-1.8944-25.2928-19.5072-46.6944-44.9024-54.4768a158.8992 158.8992 0 0 1-89.2416-69.3248 159.4624 159.4624 0 0 1-21.2992-108.2368c3.9936-24.7808-8.1408-50.0224-30.1568-62.72-5.1712-2.9696-10.4448-5.888-15.7696-8.6016-21.3504-11.008-48.0256-7.3728-67.8912 9.2672-28.5696 23.9104-64.8704 37.0688-102.144 37.0688s-73.5744-13.1584-102.144-37.0688c-19.8656-16.64-46.5408-20.224-67.8912-9.2672-5.2736 2.7136-10.5984 5.632-15.7696 8.6016-22.016 12.6976-34.1504 37.9392-30.1568 62.72a159.232 159.232 0 0 1-21.2992 108.2368 159.23712 159.23712 0 0 1-89.2416 69.3248c-25.344 7.7824-42.9568 29.1328-44.9024 54.4768-0.6656 9.3696-1.024 18.7904-1.024 28.1088 0 2.5088 0 4.9664 0.0512 7.4752 0.5632 28.0064 18.688 52.736 44.032 60.2112a159.10912 159.10912 0 0 1 91.0848 69.9392 158.52544 158.52544 0 0 1 19.8656 115.6608c-5.6832 27.136 5.632 54.272 28.16 67.6352 2.6112 1.536 5.1712 3.0208 7.8336 4.5056 22.784 12.7488 51.456 8.4992 71.3728-10.496 29.7472-28.5184 68.864-44.1856 110.0288-44.1856z"
+            fill="#333333"
+          />
+        </svg>
+      </n-icon>
+      <div>面板设置</div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-export default {
-  name: "HomeView",
+import { defineComponent, ref, reactive } from "vue";
+import route from "@/router";
+import { NIcon } from "naive-ui";
+export default defineComponent({
   setup() {
-    return {};
+    return {
+      toCommodity: () => {
+        route.push({ path: "/commodity" });
+      },
+      toOrder:()=>{
+        route.push({ path: "/order" });
+      }
+    };
   },
-};
+  components: {
+    NIcon,
+  },
+});
 </script>
 
 <style>
-@media screen and (min-width: 650px) {
-  .home {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .home .show_unit {
-    min-height: 600px;
-    width: 100%;
-  }
-  .home .banner-1 {
-    background: url("@/assets/icon/home/bc_price_moving.svg");
-    background-repeat: no-repeat;
-    background-position: 50% -30px;
-    background-size: 200% 800px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 200px;
-  }
-  .home .banner-1 .title {
-    font-family: Montserrat;
-    font-size: 70px;
-    font-weight: 400;
-    line-height: 90px;
-    letter-spacing: 4px;
-  }
-  .home .banner-1 .subtitle {
-    font-family: Montserrat;
-    font-size: 24px;
-    font-weight: 400;
-    color: #7a7a7a;
-    letter-spacing: 2px;
-    line-height: 34px;
-  }
-
-  .home .banner-1 .learn-botton {
-    margin-top: 45px;
-    padding: 15px 45px;
-    border-radius: 10px;
-    letter-spacing: 3px;
-    font-weight: 600;
-    transition: cubic-bezier(0.075, 0.82, 0.165, 1) 0.4s;
-  }
-
-  .home .banner-1 .learn-botton:hover {
-    background-color: gainsboro;
-  }
-
-  .center-banner {
-    width: 75%;
-    padding-bottom: 5%;
-    margin-bottom: 5%;
-    border-bottom: 1px solid #eeeeee;
-  }
-  .center-banner .title {
-    font-family: Montserrat;
-    font-weight: 600;
-    font-size: 14px;
-    color: #7a7a7a;
-    letter-spacing: 1px;
-  }
-  .center-banner .describe {
-    font-family: Montserrat;
-    margin-bottom: 15px;
-    outline-style: none;
-    outline-width: 3px;
-    color: #1a1b1f;
-    font-size: 40px;
-    margin: 3% auto;
-    line-height: 50px;
-    font-weight: 200;
-    letter-spacing: 2px;
-  }
-  .home .banner-2 {
-    background-size: 100%;
-    color: #fffffe;
-    display: flex;
-  }
-  .home .banner-2 .left {
-    background: linear-gradient(90deg, #9011a3 0%, #394caf);
-    width: 50%;
-    padding: 5%;
-    display: flex;
-    flex-direction: column;
-  }
-  .home .banner-2 .right {
-    background: linear-gradient(135deg, #e9465f 31%, #9c2fbf 100%);
-    width: 50%;
-    padding: 5%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .home .banner-2 .left div,
-  .home .banner-2 .right div {
-    height: 50%;
-    display: flex;
-    text-align: left;
-  }
-
-  .home .banner-2 .left .slogan,
-  .home .banner-2 .right .slogan {
-    font-size: 44px;
-    font-family: Montserrat;
-    font-weight: 700;
-  }
-
-  .home .banner-2 .left .describe,
-  .home .banner-2 .right .describe {
-    font-size: 20px;
-    font-family: Montserrat;
-    line-height: 32px;
-    font-weight: 600;
-  }
-
-  .home .banner-2 .left .publicize,
-  .home .banner-2 .right .publicize {
-    font-size: 44px;
-    font-family: Montserrat;
-    font-weight: 500;
-  }
+.menu {
+  display: flex;
+  margin: 0 auto;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  width: 81vw;
 }
 
-@media screen and (max-width: 650px) {
-  .home {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .home .show_unit {
-    min-height: 400px;
-    width: 100%;
-  }
-  .home .banner-1 {
-    background: url("@/assets/icon/home/bc_price_moving.svg");
-    background-repeat: no-repeat;
-    background-position: 50% -100px;
-    background-size: 200% 800px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 100px;
-  }
-  .home .banner-1 .title {
-    font-family: Montserrat;
-    font-size: 70px;
-    font-weight: 400;
-    font-size: 36px;
-    letter-spacing: 4px;
-  }
-  .home .banner-1 .subtitle {
-    font-family: Montserrat;
-    font-size: 14px;
-    font-weight: 500;
-    opacity: 0.6;
-    letter-spacing: 1px;
-    line-height: 34px;
-  }
+.menu .menu-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 40vw;
+  height: 30vh;
+  text-align: center;
+  font-weight: 700;
+}
 
-  .home .banner-1 .learn-botton {
-    margin-top: 45px;
-    padding: 15px 45px;
-    border-radius: 10px;
-    letter-spacing: 3px;
-    font-weight: 600;
-    transition: cubic-bezier(0.075, 0.82, 0.165, 1) 0.4s;
-    background-color: gainsboro;
-  }
-
-  .center-banner {
-    width: 87%;
-    padding-bottom: 5%;
-    margin-bottom: 5%;
-    border-bottom: 1px solid #eeeeee;
-    
-  }
-  .center-banner .title {
-    font-size: 6px;
-    font-family: Montserrat;
-    font-weight: 600;
-    color: #7a7a7a;
-  }
-  .center-banner .describe {
-    font-family: Montserrat;
-    margin-bottom: 15px;
-    outline-style: none;
-    outline-width: 3px;
-    color: #1a1b1f;
-    font-size: 30px;
-    margin: 3% auto;
-    line-height: 50px;
-    font-weight: 300;
-    letter-spacing: 2px;
-  }
-
-  .home .banner-2 {
-    background-size: 100%;
-    color: #fffffe;
-    display: flex;
-    flex-direction: column;
-  }
-  .home .banner-2 .left {
-    background: linear-gradient(90deg, #9011a3 0%, #394caf);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  .home .banner-2 .right {
-    background: linear-gradient(135deg, #e9465f 31%, #9c2fbf 100%);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .home .banner-2 .left div,
-  .home .banner-2 .right div {
-    height: 150px;
-    display: flex;
-    padding: 0 5%;
-    align-items: center;
-    text-align: left;
-  }
-
-  .home .banner-2 .left .slogan,
-  .home .banner-2 .right .slogan {
-    font-size: 32px;
-    font-family: Montserrat;
-    font-weight: 700;
-  }
-
-  .home .banner-2 .left .describe,
-  .home .banner-2 .right .describe {
-    font-size: 18px;
-    font-family: Montserrat;
-    font-weight: 600;
-  }
-
-  .home .banner-2 .left .publicize,
-  .home .banner-2 .right .publicize {
-    font-size: 28px;
-    font-family: Montserrat;
-    font-weight: 500;
-  }
+.menu .menu-item .icon,
+.menu .menu-item div {
+  cursor: pointer;
 }
 </style>
