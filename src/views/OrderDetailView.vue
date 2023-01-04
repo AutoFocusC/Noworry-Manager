@@ -1,5 +1,4 @@
-<template>
-  <div class="title">
+<template>  <div class="title">
     <n-icon class="icon" size="35">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
         <path
@@ -280,10 +279,7 @@
     <n-button type="success">复核</n-button>
   </div>
 
-  <div
-    style="margin: 2vw"
-    @click="deleteOrder()"
-  >
+  <div style="margin: 2vw" @click="deleteOrder()">
     <n-button type="error">删除订单</n-button>
   </div>
 
@@ -316,10 +312,8 @@
 
         <n-form-item label="订单状态">
           <n-radio-group v-model:value="editing.payStatus">
-            <n-space>
-              <n-radio :value="0">未支付</n-radio>
-              <n-radio :value="1">已支付</n-radio>
-            </n-space>
+            <n-radio :value="0">未支付</n-radio>
+            <n-radio :value="1">已支付</n-radio>
           </n-radio-group>
         </n-form-item>
       </n-form>
@@ -418,7 +412,7 @@ export default defineComponent({
         const keys = Object.keys(res.data);
         keys.forEach((key) => {
           formKeys.push(
-            JSON.parse(`{"name":"${key}","value":"${res.data[key]}"}`)
+            JSON.parse(`{"name":"${key}","value":"${res.data[key]}"}`),
           );
           form[key] = res.data[key];
           editing[key] = res.data[key];
@@ -475,11 +469,11 @@ export default defineComponent({
       hideDialog,
       submit,
       submit2,
-      deleteOrder:()=>{
-        if(confirm("确认删除该订单？")){
-          alert("权限已关闭")
+      deleteOrder: () => {
+        if (confirm("确认删除该订单？")) {
+          alert("权限已关闭");
         }
-      }
+      },
     };
   },
   components: {
