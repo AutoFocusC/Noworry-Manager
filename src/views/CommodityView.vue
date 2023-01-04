@@ -51,12 +51,10 @@
 
         <n-form-item label="商品类型">
           <n-radio-group v-model:value="editing.commodityType">
-            <n-space>
-              <n-radio :value="11">申根</n-radio>
-              <n-radio :value="12">北欧</n-radio>
-              <n-radio :value="13">美签</n-radio>
-              <n-radio :value="14">亚洲</n-radio>
-            </n-space>
+            <n-radio :value="11">申根</n-radio>
+            <n-radio :value="12">北欧</n-radio>
+            <n-radio :value="13">美签</n-radio>
+            <n-radio :value="14">亚洲</n-radio>
           </n-radio-group>
         </n-form-item>
 
@@ -67,12 +65,25 @@
           />
         </n-form-item>
       </n-form>
+      <n-form-item label="商品图片">
+        <n-message-provider>
+          <n-upload :max="1" list-type="image" :custom-request="onUploadFin">
+            <n-button>上传文件</n-button>
+          </n-upload>
+        </n-message-provider>
+      </n-form-item>
       <div class="dialog-btns">
         <div class="btn" @click="hideDialog()">
           <n-button round>取消</n-button>
         </div>
         <div class="btn">
-          <n-button round type="primary" @click="submit()">保存</n-button>
+          <n-button
+            round
+            type="primary"
+            @click="submit()"
+            :disabled="permissionForSave"
+            >保存</n-button
+          >
         </div>
       </div>
     </n-card>
@@ -90,10 +101,17 @@ import {
   NInput,
   NRadioGroup,
   NRadio,
+  NUpload,
+  NMessageProvider,
+  createDiscreteApi,
+  UploadCustomRequestOptions,
 } from "naive-ui";
-import type { DataTableColumns, DataTableRowKey } from "naive-ui";
-import axios from "axios";
-
+import type {
+  DataTableColumns,
+  DataTableRowKey,
+  UploadFileInfo,
+} from "naive-ui";
+import axios, { AxiosResponse } from "axios";
 type RowData = {
   key: number;
   commodityId: number;
@@ -154,10 +172,10 @@ const createColumns = (): DataTableColumns<RowData> => [
             h(
               NButton,
               { onClick: () => deleteData(row.commodityId), type: "error" },
-              { default: () => "删除" }
+              { default: () => "删除" },
             ),
           ],
-        }
+        },
       );
     },
   },
@@ -175,11 +193,15 @@ const editing = reactive({
   originPrice: null,
   remainQuantity: 20,
   commodityStatus: 0,
+  picLink: "",
+  tips: null,
 });
 
 const edit = function (row?: RowData) {
+  //用户点击"编辑"触发的回调函数
   dialog.value = !dialog.value;
   console.log(row);
+  //触发时可能要在其他地方使用row数据,所以把row赋值到全局的另一个变量中
   if (row) {
     const keys = Object.keys(row);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -201,8 +223,8 @@ const deleteData = function (commodityId: number) {
   const result = confirm("确定删除?");
   if (result) {
     axios({
-      url: `/v1/mp/visa/detail/detele/${commodityId}`,
-      method: "POST",
+      url: `/v2/mp/manager/visa/${commodityId}`,
+      method: "delete",
     })
       .then(() => {
         alert("删除成功");
@@ -215,34 +237,18 @@ const deleteData = function (commodityId: number) {
 };
 
 const submit = function () {
-  if (editing.commodityId) {
-    axios({
-      url: `/v1/mp/visa/detail/${editing.commodityId}`,
-      method: "POST",
-      data: editing,
+  axios({
+    url: `/v2/mp/manager/visa`,
+    method: "POST",
+    data: editing,
+  })
+    .then(() => {
+      alert("修改成功");
+      hideDialog();
     })
-      .then(() => {
-        alert("修改成功");
-        hideDialog();
-        updateData();
-      })
-      .catch(() => {
-        alert("修改失败");
-      });
-  } else {
-    axios({
-      url: `/v1/mp/visa/detail`,
-      method: "POST",
-      data: editing,
-    })
-      .then(() => {
-        alert("修改成功");
-        hideDialog();
-      })
-      .catch(() => {
-        alert("修改失败");
-      });
-  }
+    .catch(() => {
+      alert("修改失败");
+    });
 };
 
 const hideDialog = () => {
@@ -256,24 +262,69 @@ const data: RowData[] = reactive([]);
 const typeGroup: unknown[] = reactive([]);
 
 const updateData = function () {
+  while (data.length) {
+    data.pop();
+  }
+
   axios({
-    url: "/v1/mp/visa/group",
+    url: `/v2/mp/manager/visa`,
   }).then((res) => {
-    typeGroup.push(...res.data);
-    res.data.forEach((element: { categoryId: number }) => {
-      axios({
-        url: `/v1/mp/visa/group/${element.categoryId}`,
-      }).then((res) => {
-        data.push(...res.data);
-      });
-    });
+    data.push(...res.data);
   });
 };
+
+//上传文件前的回调
+function beforeFileUpload(fileinfo: UploadFileInfo): boolean | void {
+  if (fileinfo.file) {
+    const { notification } = createDiscreteApi(["notification"]);
+    if (fileinfo.file.type.indexOf("image") === -1) {
+      notification.create({
+        duration: 4000,
+        type: "error",
+        title: "无法上传非图片文件",
+      });
+      return false; //不允许上传
+    }
+  }
+  return true; //true:允许上传
+}
+const permissionForSave = ref(false);
+async function onUploadFin(options: UploadCustomRequestOptions) {
+  if (options.file.file) {
+    const { notification } = createDiscreteApi(["notification"]);
+    //弹出提示
+    if (options.file.file.size > 1024 * 10240) {
+      notification.create({
+        duration: 4000,
+        type: "warning",
+        title: "图片大小大于10MB，将图片导致加载缓慢",
+      });
+    }
+
+    const formdata = new FormData();
+    formdata.append("img", options.file.file);
+    //文件上传前静止提交表单
+    permissionForSave.value = true;
+    //上传至服务器
+    type resposeType = AxiosResponse<{ status: boolean; message: string }>;
+    const respose: resposeType = await axios({
+      url: "v2/mp/manager/visa/picture",
+      method: "POST",
+      data: formdata,
+      headers: { "Content-type": "multipart/form-data" },
+    });
+    //将服务器返回的图片地址记录下来
+    if (respose.data.status) {
+      editing.picLink = respose.data.message;
+      //记录后就可以提交表单了
+      permissionForSave.value = false;
+    }
+  }
+}
 
 export default defineComponent({
   setup() {
     updateData();
-
     return {
       data,
       typeGroup,
@@ -288,6 +339,9 @@ export default defineComponent({
       submit,
       updateData,
       hideDialog,
+      beforeFileUpload,
+      onUploadFin,
+      permissionForSave,
     };
   },
   components: {
@@ -299,6 +353,8 @@ export default defineComponent({
     NInput,
     NRadioGroup,
     NRadio,
+    NMessageProvider,
+    NUpload,
   },
 });
 </script>
