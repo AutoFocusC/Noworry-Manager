@@ -81,18 +81,20 @@
             size="huge"
             style="max-width: 640px"
             :bordered="false"
-            ><ReTips
-              :title="tip.title"
-              :children="tip.children"
-              v-for="(tip, i) in editing.tips"
-              :key="tip.id"
-              :path="[i]"
-              @add="onADD"
-              @update="onUPA"
-              @del="onDEL"
-              @up="onUP"
-              @down="onDOWN"
-            />
+          >
+            <TransitionGroup name="list">
+              <div v-for="(tip, i) in editing.tips" :key="tip.id">
+                <ReTips
+                  :title="tip.title"
+                  :children="tip.children"
+                  :path="[i]"
+                  @add="onADD"
+                  @update="onUPA"
+                  @del="onDEL"
+                  @up="onUP"
+                />
+              </div>
+            </TransitionGroup>
           </n-modal>
         </n-form-item>
       </n-form>
@@ -213,10 +215,10 @@ const createColumns = (): DataTableColumns<VisaResult> => [
             h(
               NButton,
               { onClick: () => deleteData(row.commodityId), type: "error" },
-              { default: () => "删除" }
+              { default: () => "删除" },
             ),
           ],
-        }
+        },
       );
     },
   },
@@ -288,6 +290,7 @@ const submit = function () {
   })
     .then(() => {
       alert("修改成功");
+      updateData();
       hideDialog();
     })
     .catch(() => {
@@ -389,7 +392,6 @@ const onADD = createEnv(editing, EnvType.ADD);
 const onUPA = createEnv(editing, EnvType.UPD);
 const onDEL = createEnv(editing, EnvType.DEL);
 const onUP = createEnv(editing, EnvType.UPP);
-const onDOWN = createEnv(editing, EnvType.DOW);
 export default defineComponent({
   setup() {
     updateData();
@@ -415,7 +417,6 @@ export default defineComponent({
       onUPA,
       onDEL,
       onUP,
-      onDOWN,
       createEnv,
       EnvType,
     };
@@ -474,5 +475,16 @@ export default defineComponent({
   flex-direction: row;
   justify-content: space-around;
   margin: 0 auto;
+}
+.list-move, /* 对移动中的元素应用的过渡 */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 </style>

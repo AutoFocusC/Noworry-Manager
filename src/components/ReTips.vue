@@ -1,5 +1,4 @@
-<template>
-  <div class="box">
+<template>  <div class="box">
     <div class="ipt">
       <n-input
         :default-value="props.title"
@@ -13,24 +12,25 @@
         <n-button @click="onItemAdd"> + </n-button>
         <n-button @click="onItemRemove"> - </n-button>
         <n-button @click="onItemUp"> ↑ </n-button>
-        <n-button @click="onItemDown"> ↓ </n-button>
       </n-button-group>
     </div>
   </div>
 
   <div class="it" v-if="props.children.length">
-    <ReTips
-      v-for="(tip, i) in props.children"
-      :title="tip.title"
-      :children="tip.children"
-      :key="tip.id"
-      :path="[...props.path, i]"
-      @add="(p) => emit('add', p)"
-      @del="(p) => emit('del', p)"
-      @update="(p, m) => emit('update', p, m)"
-      @up="(p) => emit('up', p)"
-      @down="(p) => emit('down', p)"
-    />
+    <TransitionGroup name="list">
+      <div v-for="(tip, i) in props.children" :key="tip.id">
+        <ReTips
+          :title="tip.title"
+          :children="tip.children"
+          :path="[...props.path, i]"
+          @add="(p) => emit('add', p)"
+          @del="(p) => emit('del', p)"
+          @update="(p, m) => emit('update', p, m)"
+          @up="(p) => emit('up', p)"
+          @down="(p) => emit('down', p)"
+        />
+      </div>
+    </TransitionGroup>
   </div>
 </template>
 
@@ -71,9 +71,6 @@ function onItemAdd() {
 function onItemUp() {
   emit("up", props.path);
 }
-function onItemDown() {
-  emit("down", props.path);
-}
 </script>
 
 <style scoped>
@@ -89,5 +86,19 @@ function onItemDown() {
 }
 .ipt {
   flex: 5;
+}
+.list-move, /* 对移动中的元素应用的过渡 */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+.list-leave-active {
+  position: absolute;
 }
 </style>

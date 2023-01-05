@@ -1,5 +1,4 @@
-import { UnwrapNestedRefs } from "vue";
-export function createEnv(
+import { UnwrapNestedRefs } from "vue";export function createEnv(
   tips: UnwrapNestedRefs<editingData>,
   type: EnvType.UPD,
 ): (path: number[], msg: string) => void;
@@ -41,14 +40,6 @@ export function createEnv(
         arr[path[path.length - 1]] = arr[path[path.length - 1] - 1];
         arr[path[path.length - 1] - 1] = tmp;
       };
-    case EnvType.DOW:
-      return function DOWN(path: number[]) {
-        if (path[0] === path.length - 1) return;
-        const arr = TargetTreeEl(path);
-        const tmp = arr[path[path.length - 1]];
-        arr[path[path.length - 1]] = arr[path[path.length - 1] + 1];
-        arr[path[path.length - 1] + 1] = tmp;
-      };
     default:
       return;
   }
@@ -72,7 +63,6 @@ export enum EnvType {
   DEL,
   UPD,
   UPP,
-  DOW,
 }
 export type tipItems = { title: string; children: tipItems[] };
 export type editingData = {
