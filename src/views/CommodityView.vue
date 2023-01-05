@@ -1,4 +1,5 @@
-<template>  <div class="form-btns">
+<template>
+  <div class="form-btns">
     <div class="btn">
       <n-button round @click="updateData()">刷新</n-button>
     </div>
@@ -78,7 +79,7 @@
             preset="card"
             title="Tips管理"
             size="huge"
-            style="max-width: 60vw"
+            style="max-width: 640px"
             :bordered="false"
             ><ReTips
               :title="tip.title"
@@ -163,13 +164,13 @@ const createColumns = (): DataTableColumns<VisaResult> => [
   {
     title: "商品名称",
     align: "center",
-    width: 350,
+    width: 200,
     key: "commodityName",
   },
   {
     title: "商品类别",
     align: "center",
-    width: 150,
+    width: 80,
     key: "commodityType",
     sorter: "default",
     render(row) {
@@ -192,6 +193,7 @@ const createColumns = (): DataTableColumns<VisaResult> => [
   {
     title: "简介",
     align: "center",
+    width: 220,
     key: "commodityBrief",
   },
   {
@@ -211,10 +213,10 @@ const createColumns = (): DataTableColumns<VisaResult> => [
             h(
               NButton,
               { onClick: () => deleteData(row.commodityId), type: "error" },
-              { default: () => "删除" },
+              { default: () => "删除" }
             ),
           ],
-        },
+        }
       );
     },
   },
@@ -233,6 +235,7 @@ const editing = reactive<editingData>({
   remainQuantity: 20,
   commodityStatus: 0,
   picLink: "",
+  picLinkTem: "",
   tips: [],
 });
 
@@ -255,6 +258,8 @@ const edit = function (row?: VisaResult) {
     editing.initialQuantity = null;
     editing.originPrice = null;
     editing.remainQuantity = 20;
+    editing.picLink = "";
+    editing.picLinkTem = "";
   }
 };
 
@@ -354,23 +359,27 @@ async function onUploadFin(options: UploadCustomRequestOptions) {
     }
 
     const formdata = new FormData();
-    formdata.append("img", options.file.file);
+    formdata.append("image", options.file.file);
+    formdata.append("key", "3e5e34bf9dc1a6f682ca719f3e9aeb45");
+
     //文件上传前静止提交表单
     permissionForSave.value = true;
     //上传至服务器
-    type resposeType = AxiosResponse<{ status: boolean; message: string }>;
+    type resposeType = AxiosResponse<{
+      status: boolean;
+      data: { image: { url: string }; medium: { url: string } };
+    }>;
     const respose: resposeType = await axios({
-      url: "v2/mp/manager/visa/picture",
+      url: "https://api.imgbb.com/1/upload",
       method: "POST",
       data: formdata,
-      headers: { "Content-type": "multipart/form-data" },
+      headers: { "content-type": "multipart/form-data" },
     });
-    //将服务器返回的图片地址记录下来
-    if (respose.data.status) {
-      editing.picLink = respose.data.message;
-      //记录后就可以提交表单了
-      permissionForSave.value = false;
-    }
+    //将服务器返回的图片地址记录下来if (respose.data)i
+    console.log(respose.data.data.image, respose.data.data.medium);
+    editing.picLink = respose.data.data.image.url;
+    editing.picLinkTem = respose.data.data.medium.url; //记录后就可以提交表单了
+    permissionForSave.value = false;
   }
 }
 //控制tips模态框的出现

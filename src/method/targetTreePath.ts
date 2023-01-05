@@ -1,5 +1,4 @@
-import { UnwrapNestedRefs } from "vue";
-export function createEnv(
+import { UnwrapNestedRefs } from "vue";export function createEnv(
   tips: UnwrapNestedRefs<editingData>,
   type: EnvType.UPD,
 ): (path: number[], msg: string) => void;
