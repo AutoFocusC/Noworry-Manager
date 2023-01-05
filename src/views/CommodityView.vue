@@ -1,5 +1,4 @@
-<template>
-  <div class="form-btns">
+<template>  <div class="form-btns">
     <div class="btn">
       <n-button round @click="updateData()">刷新</n-button>
     </div>
@@ -64,14 +63,38 @@
             placeholder="请输入商品简介"
           />
         </n-form-item>
+        <n-form-item label="商品图片">
+          <n-message-provider>
+            <n-upload :max="1" list-type="image" :custom-request="onUploadFin">
+              <n-button>上传文件</n-button>
+            </n-upload>
+          </n-message-provider>
+        </n-form-item>
+        <n-form-item label="商品提示">
+          <n-button @click="showModal = true">点击查看或修改</n-button>
+          <n-modal
+            v-model:show="showModal"
+            class="custom-card"
+            preset="card"
+            title="Tips管理"
+            size="huge"
+            style="max-width: 60vw"
+            :bordered="false"
+            ><ReTips
+              :title="tip.title"
+              :children="tip.children"
+              v-for="(tip, i) in editing.tips"
+              :key="tip.title"
+              :path="[i]"
+              @add="onADD"
+              @update="onUPA"
+              @del="onDEL"
+            />
+          </n-modal>
+          <n-button round>保存 </n-button>
+        </n-form-item>
       </n-form>
-      <n-form-item label="商品图片">
-        <n-message-provider>
-          <n-upload :max="1" list-type="image" :custom-request="onUploadFin">
-            <n-button>上传文件</n-button>
-          </n-upload>
-        </n-message-provider>
-      </n-form-item>
+
       <div class="dialog-btns">
         <div class="btn" @click="hideDialog()">
           <n-button round>取消</n-button>
@@ -93,6 +116,7 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, h } from "vue";
 import {
+  NModal,
   NButton,
   NDataTable,
   NCard,
@@ -112,6 +136,8 @@ import type {
   UploadFileInfo,
 } from "naive-ui";
 import axios, { AxiosResponse } from "axios";
+import ReTips from "../components/ReTips.vue";
+import { createEnv, editingData, EnvType } from "@/method/targetTreePath";
 type RowData = {
   key: number;
   commodityId: number;
@@ -183,7 +209,7 @@ const createColumns = (): DataTableColumns<RowData> => [
 
 //编辑或新增商品
 const dialog = ref(false);
-const editing = reactive({
+const editing = reactive<editingData>({
   commodityId: null,
   commodityName: "",
   commodityType: 11,
@@ -194,7 +220,7 @@ const editing = reactive({
   remainQuantity: 20,
   commodityStatus: 0,
   picLink: "",
-  tips: null,
+  tips: [],
 });
 
 const edit = function (row?: RowData) {
@@ -321,7 +347,12 @@ async function onUploadFin(options: UploadCustomRequestOptions) {
     }
   }
 }
-
+//控制tips模态框的出现
+const showModal = ref(false);
+//检测到子组件发送的事件
+const onADD = createEnv(editing, EnvType.ADD);
+const onUPA = createEnv(editing, EnvType.UPD);
+const onDEL = createEnv(editing, EnvType.DEL);
 export default defineComponent({
   setup() {
     updateData();
@@ -342,6 +373,12 @@ export default defineComponent({
       beforeFileUpload,
       onUploadFin,
       permissionForSave,
+      showModal,
+      onADD,
+      onUPA,
+      onDEL,
+      createEnv,
+      EnvType,
     };
   },
   components: {
@@ -355,6 +392,8 @@ export default defineComponent({
     NRadio,
     NMessageProvider,
     NUpload,
+    NModal,
+    ReTips,
   },
 });
 </script>
