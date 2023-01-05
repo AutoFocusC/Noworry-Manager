@@ -65,5 +65,6 @@ export type editingData = {
   remainQuantity: number;
   commodityStatus: number;
   picLink: string;
+  picLinkTem: string,
   tips: tipItems[];
 };
