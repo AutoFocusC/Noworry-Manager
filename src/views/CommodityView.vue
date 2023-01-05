@@ -79,7 +79,7 @@
             preset="card"
             title="Tips管理"
             size="huge"
-            style="max-width: 60vw"
+            style="max-width: 640px"
             :bordered="false"
             ><ReTips
               :title="tip.title"
@@ -151,13 +151,13 @@ const createColumns = (): DataTableColumns<RowData> => [
   {
     title: "商品名称",
     align: "center",
-    width: 350,
+    width: 200,
     key: "commodityName",
   },
   {
     title: "商品类别",
     align: "center",
-    width: 150,
+    width: 80,
     key: "commodityType",
     sorter: "default",
     render(row) {
@@ -180,6 +180,7 @@ const createColumns = (): DataTableColumns<RowData> => [
   {
     title: "简介",
     align: "center",
+    width: 220,
     key: "commodityBrief",
   },
   {
