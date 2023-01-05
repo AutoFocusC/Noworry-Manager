@@ -22,6 +22,7 @@ export function createEnv(
     case EnvType.DEL:
       return function DEL(path: number[]) {
         const arr = TargetTreeEl(path);
+        console.log("DEL", arr);
         arr.splice(path[path.length - 1], 1);
       };
     case EnvType.UPD:
@@ -41,7 +42,7 @@ export function createEnv(
     //按路径递归,留下最后一层以便操作
     console.log(index, path, arr);
     while (index++ < path.length - 1) {
-      arr = arr[path[index]].children;
+      arr = arr[path[index - 1]].children;
       console.log(arr, ")))");
     }
 
