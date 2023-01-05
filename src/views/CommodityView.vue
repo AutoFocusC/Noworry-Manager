@@ -84,14 +84,15 @@
               :title="tip.title"
               :children="tip.children"
               v-for="(tip, i) in editing.tips"
-              :key="tip.title"
+              :key="tip.id"
               :path="[i]"
               @add="onADD"
               @update="onUPA"
               @del="onDEL"
+              @up="onUP"
+              @down="onDOWN"
             />
           </n-modal>
-          <n-button round>保存 </n-button>
         </n-form-item>
       </n-form>
 
@@ -105,7 +106,7 @@
             type="primary"
             @click="submit()"
             :disabled="permissionForSave"
-            >保存</n-button
+            >上传</n-button
           >
         </div>
       </div>
@@ -137,16 +138,28 @@ import type {
 } from "naive-ui";
 import axios, { AxiosResponse } from "axios";
 import ReTips from "../components/ReTips.vue";
-import { createEnv, editingData, EnvType } from "@/method/targetTreePath";
-type RowData = {
-  key: number;
+import {
+  componentPros,
+  createEnv,
+  editingData,
+  EnvType,
+} from "@/method/targetTreePath";
+type VisaResult = {
   commodityId: number;
+  commodityType: number;
   commodityName: string;
-  commodityType: string;
-  brief: string;
+  commodityBrief: string;
+  initialQuantity: number;
+  remainQuantity: number;
+  originPrice: number;
+  currentPrice: number;
+  commodityStatus: number;
+  picLink: string;
+  picLinkTem: string;
+  tips: componentPros[];
 };
 
-const createColumns = (): DataTableColumns<RowData> => [
+const createColumns = (): DataTableColumns<VisaResult> => [
   {
     title: "商品名称",
     align: "center",
@@ -223,7 +236,7 @@ const editing = reactive<editingData>({
   tips: [],
 });
 
-const edit = function (row?: RowData) {
+const edit = function (row?: VisaResult) {
   //用户点击"编辑"触发的回调函数
   dialog.value = !dialog.value;
   console.log(row);
@@ -283,7 +296,7 @@ const hideDialog = () => {
 
 const checkedRowKeysRef = ref<DataTableRowKey[]>([]);
 
-const data: RowData[] = reactive([]);
+const data: VisaResult[] = reactive([]);
 
 const typeGroup: unknown[] = reactive([]);
 
@@ -295,6 +308,19 @@ const updateData = function () {
   axios({
     url: `/v2/mp/manager/visa`,
   }).then((res) => {
+    //给tips加id
+    res.data.forEach((e: VisaResult) => {
+      treeTransvalAddId(e.tips);
+    });
+    //以深度优先遍历的方法给tips加id
+    function treeTransvalAddId(arr: componentPros[]) {
+      if (arr.length > 0) {
+        arr.forEach((e) => {
+          e.id = Symbol();
+          treeTransvalAddId(e.children);
+        });
+      } else return;
+    }
     data.push(...res.data);
   });
 };
@@ -353,6 +379,8 @@ const showModal = ref(false);
 const onADD = createEnv(editing, EnvType.ADD);
 const onUPA = createEnv(editing, EnvType.UPD);
 const onDEL = createEnv(editing, EnvType.DEL);
+const onUP = createEnv(editing, EnvType.UPP);
+const onDOWN = createEnv(editing, EnvType.DOW);
 export default defineComponent({
   setup() {
     updateData();
@@ -377,6 +405,8 @@ export default defineComponent({
       onADD,
       onUPA,
       onDEL,
+      onUP,
+      onDOWN,
       createEnv,
       EnvType,
     };

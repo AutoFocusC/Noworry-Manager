@@ -1,5 +1,4 @@
-<template>
-  <div class="menu">
+<template>  <div class="menu">
     <div class="menu-item" @click="toCommodity()">
       <n-icon class="icon" size="100">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
@@ -77,9 +76,9 @@ export default defineComponent({
       toCommodity: () => {
         route.push({ path: "/commodity" });
       },
-      toOrder:()=>{
+      toOrder: () => {
         route.push({ path: "/order" });
-      }
+      },
     };
   },
   components: {

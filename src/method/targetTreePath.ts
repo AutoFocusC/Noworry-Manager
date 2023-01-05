@@ -1,4 +1,5 @@
-import { UnwrapNestedRefs } from "vue";export function createEnv(
+import { UnwrapNestedRefs } from "vue";
+export function createEnv(
   tips: UnwrapNestedRefs<editingData>,
   type: EnvType.UPD,
 ): (path: number[], msg: string) => void;
@@ -16,7 +17,11 @@ export function createEnv(
     case EnvType.ADD:
       return function ADD(path: number[]) {
         const arr = TargetTreeEl(path);
-        arr.splice(path[path.length - 1] + 1, 0, { title: "", children: [] });
+        arr.splice(path[path.length - 1] + 1, 0, {
+          title: "",
+          children: [],
+          id: Symbol(),
+        });
       };
     case EnvType.DEL:
       return function DEL(path: number[]) {
@@ -26,17 +31,33 @@ export function createEnv(
     case EnvType.UPD:
       return function UPDATE(path: number[], msg: string) {
         const arr = TargetTreeEl(path);
-        arr[path.length - 1].title = msg;
+        arr[path[path.length - 1]].title = msg;
+      };
+    case EnvType.UPP:
+      return function UP(path: number[]) {
+        if (path[path.length - 1] === 0) return;
+        const arr = TargetTreeEl(path);
+        const tmp = arr[path[path.length - 1]];
+        arr[path[path.length - 1]] = arr[path[path.length - 1] - 1];
+        arr[path[path.length - 1] - 1] = tmp;
+      };
+    case EnvType.DOW:
+      return function DOWN(path: number[]) {
+        if (path[0] === path.length - 1) return;
+        const arr = TargetTreeEl(path);
+        const tmp = arr[path[path.length - 1]];
+        arr[path[path.length - 1]] = arr[path[path.length - 1] + 1];
+        arr[path[path.length - 1] + 1] = tmp;
       };
     default:
       return;
   }
 
-  function TargetTreeEl(path: number[]): tipItems[] {
+  function TargetTreeEl(path: number[]): omitPath[] {
     //path记录递归的路径
 
     let index = 0;
-    let arr = editData.tips as tipItems[];
+    let arr = editData.tips as omitPath[];
     //按路径递归,留下最后一层以便操作
     console.log(index, path, arr);
     while (index++ < path.length - 1) {
@@ -50,6 +71,8 @@ export enum EnvType {
   ADD,
   DEL,
   UPD,
+  UPP,
+  DOW,
 }
 export type tipItems = { title: string; children: tipItems[] };
 export type editingData = {
@@ -63,5 +86,16 @@ export type editingData = {
   remainQuantity: number;
   commodityStatus: number;
   picLink: string;
-  tips: tipItems[];
+  tips: componentPros[];
+};
+export type componentPros = {
+  title: string;
+  children: componentPros[];
+  path: number[];
+  id?: symbol;
+};
+type omitPath = {
+  title: string;
+  children: componentPros[];
+  id?: symbol;
 };

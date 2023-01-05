@@ -12,8 +12,8 @@
       <n-button-group>
         <n-button @click="onItemAdd"> + </n-button>
         <n-button @click="onItemRemove"> - </n-button>
-        <n-button> ↑ </n-button>
-        <n-button> ↓ </n-button>
+        <n-button @click="onItemUp"> ↑ </n-button>
+        <n-button @click="onItemDown"> ↓ </n-button>
       </n-button-group>
     </div>
   </div>
@@ -23,11 +23,13 @@
       v-for="(tip, i) in props.children"
       :title="tip.title"
       :children="tip.children"
-      :key="tip.title"
+      :key="tip.id"
       :path="[...props.path, i]"
       @add="(p) => emit('add', p)"
       @del="(p) => emit('del', p)"
       @update="(p, m) => emit('update', p, m)"
+      @up="(p) => emit('up', p)"
+      @down="(p) => emit('down', p)"
     />
   </div>
 </template>
@@ -35,22 +37,24 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from "vue";
 import { NInput, NButton, NButtonGroup } from "naive-ui";
-import { tipItems } from "@/method/targetTreePath";
+import { componentPros } from "@/method/targetTreePath";
 //编辑Tips时事件的类型
 
 const emit = defineEmits<{
   (e: "update", path: number[], msg: string): void;
   (e: "del", path: number[]): void;
   (e: "add", path: number[]): void;
+  (e: "up", path: number[]): void;
+  (e: "down", path: number[]): void;
 }>();
-type componentPros = {
-  title: string;
-  children: tipItems[];
-  path: number[];
-};
 
 //depth是记录当前递归深度的
-const props = defineProps<componentPros>();
+const props = defineProps<{
+  title: string;
+  children: componentPros[];
+  path: number[];
+  id?: symbol | undefined;
+}>();
 //当input的值变化是发生的回调
 function onInputChange(msg: string): void {
   //向上层报告change事件
@@ -63,6 +67,12 @@ function onItemRemove() {
 //增加Item时发生的回调
 function onItemAdd() {
   emit("add", props.path);
+}
+function onItemUp() {
+  emit("up", props.path);
+}
+function onItemDown() {
+  emit("down", props.path);
 }
 </script>
 
