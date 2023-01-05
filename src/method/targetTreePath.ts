@@ -1,5 +1,4 @@
-import { UnwrapNestedRefs } from "vue";
-export function createEnv(
+import { UnwrapNestedRefs } from "vue";export function createEnv(
   tips: UnwrapNestedRefs<editingData>,
   type: EnvType.UPD,
 ): (path: number[], msg: string) => void;
@@ -22,7 +21,6 @@ export function createEnv(
     case EnvType.DEL:
       return function DEL(path: number[]) {
         const arr = TargetTreeEl(path);
-        console.log("DEL", arr);
         arr.splice(path[path.length - 1], 1);
       };
     case EnvType.UPD:
@@ -43,7 +41,6 @@ export function createEnv(
     console.log(index, path, arr);
     while (index++ < path.length - 1) {
       arr = arr[path[index - 1]].children;
-      console.log(arr, ")))");
     }
 
     return arr;
