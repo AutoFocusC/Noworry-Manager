@@ -1,4 +1,5 @@
-import { UnwrapNestedRefs } from "vue";export function createEnv(
+import { UnwrapNestedRefs } from "vue";
+export function createEnv(
   tips: UnwrapNestedRefs<editingData>,
   type: EnvType.UPD,
 ): (path: number[], msg: string) => void;
@@ -40,6 +41,15 @@ export function createEnv(
         arr[path[path.length - 1]] = arr[path[path.length - 1] - 1];
         arr[path[path.length - 1] - 1] = tmp;
       };
+    case EnvType.SUB:
+      return function SUB(path: number[]) {
+        const arr = TargetTreeEl(path);
+        arr[path[path.length - 1]].children.push({
+          id: Symbol(),
+          title: "",
+          children: [],
+        });
+      };
     default:
       return;
   }
@@ -50,7 +60,6 @@ export function createEnv(
     let index = 0;
     let arr = editData.tips as omitPath[];
     //按路径递归,留下最后一层以便操作
-    console.log(index, path, arr);
     while (index++ < path.length - 1) {
       arr = arr[path[index - 1]].children;
     }
@@ -59,10 +68,11 @@ export function createEnv(
   }
 }
 export enum EnvType {
-  ADD,
-  DEL,
-  UPD,
-  UPP,
+  ADD, //添加同级项目
+  DEL, //删除条目
+  UPD, //条目更新
+  UPP, //条目上移
+  SUB, //增加子节点
 }
 export type tipItems = { title: string; children: tipItems[] };
 export type editingData = {
@@ -87,6 +97,6 @@ export type componentPros = {
 };
 type omitPath = {
   title: string;
-  children: componentPros[];
+  children: omitPath[];
   id?: symbol;
 };

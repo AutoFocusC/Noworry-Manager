@@ -1,4 +1,5 @@
-<template>  <div class="box">
+<template>
+  <div class="box">
     <div class="ipt">
       <n-input
         :default-value="props.title"
@@ -12,6 +13,7 @@
         <n-button @click="onItemAdd"> + </n-button>
         <n-button @click="onItemRemove"> - </n-button>
         <n-button @click="onItemUp"> ↑ </n-button>
+        <n-button @click="onItemSub"> ≡ </n-button>
       </n-button-group>
     </div>
   </div>
@@ -28,6 +30,7 @@
           @update="(p, m) => emit('update', p, m)"
           @up="(p) => emit('up', p)"
           @down="(p) => emit('down', p)"
+          @sub="(p) => emit('sub', p)"
         />
       </div>
     </TransitionGroup>
@@ -46,6 +49,7 @@ const emit = defineEmits<{
   (e: "add", path: number[]): void;
   (e: "up", path: number[]): void;
   (e: "down", path: number[]): void;
+  (e: "sub", path: number[]): void;
 }>();
 
 //depth是记录当前递归深度的
@@ -70,6 +74,9 @@ function onItemAdd() {
 }
 function onItemUp() {
   emit("up", props.path);
+}
+function onItemSub() {
+  emit("sub", props.path);
 }
 </script>
 

@@ -92,8 +92,18 @@
                   @update="onUPA"
                   @del="onDEL"
                   @up="onUP"
+                  @sub="onSUB"
                 />
               </div>
+              <n-button
+                v-if="!editing.tips.length"
+                tag="div"
+                dashed
+                type="info"
+                style="width: 88%"
+                @click="newTips"
+                >新建项</n-button
+              >
             </TransitionGroup>
           </n-modal>
         </n-form-item>
@@ -392,6 +402,10 @@ const onADD = createEnv(editing, EnvType.ADD);
 const onUPA = createEnv(editing, EnvType.UPD);
 const onDEL = createEnv(editing, EnvType.DEL);
 const onUP = createEnv(editing, EnvType.UPP);
+const onSUB = createEnv(editing, EnvType.SUB);
+function newTips() {
+  editing.tips.push({ id: Symbol(), children: [], title: "", path: [0] });
+}
 export default defineComponent({
   setup() {
     updateData();
@@ -417,8 +431,10 @@ export default defineComponent({
       onUPA,
       onDEL,
       onUP,
+      onSUB,
       createEnv,
       EnvType,
+      newTips,
     };
   },
   components: {
