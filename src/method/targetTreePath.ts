@@ -1,5 +1,4 @@
-import { UnwrapNestedRefs } from "vue";
-export function createEnv(
+import { UnwrapNestedRefs } from "vue";export function createEnv(
   tips: UnwrapNestedRefs<editingData>,
   type: EnvType.UPD,
 ): (path: number[], msg: string) => void;
@@ -41,8 +40,7 @@ export function createEnv(
     //按路径递归,留下最后一层以便操作
     console.log(index, path, arr);
     while (index++ < path.length - 1) {
-      arr = arr[path[index]].children;
-      console.log(arr, ")))");
+      arr = arr[path[index - 1]].children;
     }
 
     return arr;
