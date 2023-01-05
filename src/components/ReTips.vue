@@ -1,0 +1,83 @@
+<template>
+  <div class="box">
+    <div class="ipt">
+      <n-input
+        :default-value="props.title"
+        type="text"
+        @update:value="onInputChange"
+      ></n-input>
+    </div>
+
+    <div class="btng">
+      <n-button-group>
+        <n-button @click="onItemAdd"> + </n-button>
+        <n-button @click="onItemRemove"> - </n-button>
+        <n-button> ↑ </n-button>
+        <n-button> ↓ </n-button>
+      </n-button-group>
+    </div>
+  </div>
+
+  <div class="it" v-if="props.children.length">
+    <ReTips
+      v-for="(tip, i) in props.children"
+      :title="tip.title"
+      :children="tip.children"
+      :key="tip.title"
+      :path="[...props.path, i]"
+      @add="(p) => emit('add', p)"
+      @del="(p) => emit('del', p)"
+      @update="(p, m) => emit('update', p, m)"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { defineProps, defineEmits } from "vue";
+import { NInput, NButton, NButtonGroup } from "naive-ui";
+import { tipItems } from "@/method/targetTreePath";
+//编辑Tips时事件的类型
+
+const emit = defineEmits<{
+  (e: "update", path: number[], msg: string): void;
+  (e: "del", path: number[]): void;
+  (e: "add", path: number[]): void;
+}>();
+type componentPros = {
+  title: string;
+  children: tipItems[];
+  path: number[];
+};
+
+//depth是记录当前递归深度的
+const props = defineProps<componentPros>();
+//当input的值变化是发生的回调
+function onInputChange(msg: string): void {
+  //向上层报告change事件
+  emit("update", props.path, msg);
+}
+//删除一项时发生的回调
+function onItemRemove() {
+  emit("del", props.path);
+}
+//增加Item时发生的回调
+function onItemAdd() {
+  emit("add", props.path);
+}
+</script>
+
+<style scoped>
+.it {
+  margin-left: 2em;
+}
+.box {
+  display: flex;
+  justify-content: space-between;
+}
+.btng {
+  flex: 2;
+}
+.ipt {
+  flex: 5;
+}
+</style>
