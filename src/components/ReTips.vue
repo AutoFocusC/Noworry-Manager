@@ -13,24 +13,27 @@
         <n-button @click="onItemAdd"> + </n-button>
         <n-button @click="onItemRemove"> - </n-button>
         <n-button @click="onItemUp"> ↑ </n-button>
-        <n-button @click="onItemDown"> ↓ </n-button>
+        <n-button @click="onItemSub"> ≡ </n-button>
       </n-button-group>
     </div>
   </div>
 
   <div class="it" v-if="props.children.length">
-    <ReTips
-      v-for="(tip, i) in props.children"
-      :title="tip.title"
-      :children="tip.children"
-      :key="tip.id"
-      :path="[...props.path, i]"
-      @add="(p) => emit('add', p)"
-      @del="(p) => emit('del', p)"
-      @update="(p, m) => emit('update', p, m)"
-      @up="(p) => emit('up', p)"
-      @down="(p) => emit('down', p)"
-    />
+    <TransitionGroup name="list">
+      <div v-for="(tip, i) in props.children" :key="tip.id">
+        <ReTips
+          :title="tip.title"
+          :children="tip.children"
+          :path="[...props.path, i]"
+          @add="(p) => emit('add', p)"
+          @del="(p) => emit('del', p)"
+          @update="(p, m) => emit('update', p, m)"
+          @up="(p) => emit('up', p)"
+          @down="(p) => emit('down', p)"
+          @sub="(p) => emit('sub', p)"
+        />
+      </div>
+    </TransitionGroup>
   </div>
 </template>
 
@@ -46,6 +49,7 @@ const emit = defineEmits<{
   (e: "add", path: number[]): void;
   (e: "up", path: number[]): void;
   (e: "down", path: number[]): void;
+  (e: "sub", path: number[]): void;
 }>();
 
 //depth是记录当前递归深度的
@@ -71,8 +75,8 @@ function onItemAdd() {
 function onItemUp() {
   emit("up", props.path);
 }
-function onItemDown() {
-  emit("down", props.path);
+function onItemSub() {
+  emit("sub", props.path);
 }
 </script>
 
@@ -89,5 +93,19 @@ function onItemDown() {
 }
 .ipt {
   flex: 5;
+}
+.list-move, /* 对移动中的元素应用的过渡 */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+.list-leave-active {
+  position: absolute;
 }
 </style>
