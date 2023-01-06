@@ -1,4 +1,5 @@
-<template>  <div class="title">
+<template>
+  <div class="title">
     <n-icon class="icon" size="35">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
         <path
@@ -54,6 +55,7 @@
     </n-table>
   </div>
 
+  <!-- 信息登记表 -->
   <div class="title" v-if="Number(data.status) >= 2">
     <n-icon class="icon" size="35">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
@@ -71,6 +73,7 @@
   </div>
 
   <!-- 根据id的不同传参 -->
+  <InfoTable :data="data" :form="form"></InfoTable>
 
   <div
     style="margin: 2vw"
@@ -135,7 +138,7 @@
         <n-form-item
           v-for="(item, index) in formKeys"
           :key="index"
-          :label="item.name"
+          :label="translate(item.name)"
           path="inputValue"
         >
           <n-input v-model:value="editing[item.name]" />
@@ -166,7 +169,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { defineComponent, ref, reactive } from "vue";
 import route from "@/router";
 import {
@@ -182,7 +185,9 @@ import {
 } from "naive-ui";
 import { useRoute } from "vue-router";
 import axios from "axios";
-
+import InfoTable from "@/components/InfoTable.vue";
+import { OrderBaseStatus, OrderDetailStatus } from "@/entity/request/submit";
+import {translate} from "@/method/tools"
 const form: any = reactive({});
 const formKeys: any = reactive([]);
 //编辑或新增商品
@@ -193,102 +198,91 @@ const editing: any = reactive({});
 const hideDialog = () => {
   dialog.value = false;
 };
-export default defineComponent({
-  setup() {
-    const data = reactive(useRoute().query);
-    if (data.status == "0") {
-      editing.orderId = data.orderId;
-      editing.favourablePrice = data.favourablePrice;
-      editing.payStatus = 0;
-    }
-    const edit = function (row?: any) {
-      dialog.value = !dialog.value;
-    };
+const data = reactive(useRoute().query);
+if (data.status == "0") {
+  editing.orderId = data.orderId;
+  editing.favourablePrice = data.favourablePrice;
+  editing.payStatus = 0;
+}
+const edit = function (row?: any) {
+  dialog.value = !dialog.value;
+};
 
-    const getData = function () {
-      axios({
-        url: `/v1/mp/order/getform/${data.commodityType}/${data.orderDetailId}`,
-        method: "GET",
-      }).then((res) => {
-        const keys = Object.keys(res.data);
-        keys.forEach((key) => {
-          formKeys.push(
-            JSON.parse(`{"name":"${key}","value":"${res.data[key]}"}`),
-          );
-          form[key] = res.data[key];
-          editing[key] = res.data[key];
-        });
+const getData = function () {
+  axios({
+    url: `/v2/mp/manager/order/form/${data.orderDetailId}`,
+    method: "GET",
+  }).then((res) => {
+    const keys = Object.keys(res.data);
+    keys.forEach((key) => {
+      formKeys.push(JSON.parse(`{"name":"${key}","value":"${res.data[key]}"}`));
+      form[key] = res.data[key];
+      editing[key] = res.data[key];
+    });
+  });
+};
+getData();
+
+const submit = function () {
+  const updateBase: OrderBaseStatus = {
+    orderId: Number(data.orderId),
+    status: 1, //修改为支付状态
+    data: {
+      favourablePrice: editing.favourablePrice,
+    },
+  };
+  axios({
+    url: `/v2/mp/manager/order/base`,
+    method: "POST",
+    data: updateBase,
+  })
+    .then(() => {
+      alert("修改成功");
+      hideDialog();
+      route.push("/order");
+    })
+    .catch((err) => {
+      console.log(err);
+      alert("修改失败");
+    });
+};
+
+const submit2 = function () {
+  const updateDetail: OrderDetailStatus = {
+    orderDetailId: editing.orderDetailId,
+    status: 3, //修改为已审核状态
+    sheet: editing,
+  };
+  axios({
+    url: `/v2/mp/manager/order/detail`,
+    method: "POST",
+    data: updateDetail,
+  })
+    .then(() => {
+      alert("修改成功");
+      hideDialog();
+      route.push("/order");
+    })
+    .catch((err) => {
+      console.log(err);
+      alert("修改失败");
+    });
+};
+
+const deleteOrder = () => {
+  if (confirm("警告！相关订单也将被一起删除，确认删除该订单？")) {
+    axios
+      .delete(`/v2/mp/manager/order/${data.orderId}`)
+      .then(() => {
+        alert("删除成功!");
+        route.push("/order");
+      })
+      .catch((err) => {
+        console.log(err);
+        alert("删除失败");
       });
-    };
-    getData();
-
-    const submit = function () {
-      axios({
-        url: `/v1/mp/order/update`,
-        method: "POST",
-        data: {
-          orderId: editing.orderId,
-          favourablePrice: editing.favourablePrice,
-          payStatus: editing.payStatus,
-        },
-      })
-        .then(() => {
-          alert("修改成功");
-          hideDialog();
-          route.push("/order");
-        })
-        .catch((err) => {
-          console.log(err);
-          alert("修改失败");
-        });
-    };
-
-    const submit2 = function () {
-      axios({
-        url: `/v1/mp/order/updateform/${data.commodityType}/${data.orderDetailId}`,
-        method: "POST",
-        data: editing,
-      })
-        .then(() => {
-          alert("修改成功");
-          hideDialog();
-          route.push("/order");
-        })
-        .catch((err) => {
-          console.log(err);
-          alert("修改失败");
-        });
-    };
-
-    return {
-      data,
-      form,
-      formKeys,
-      edit,
-      editing,
-      dialog,
-      hideDialog,
-      submit,
-      submit2,
-      deleteOrder: () => {
-        if (confirm("确认删除该订单？")) {
-          alert("权限已关闭");
-        }
-      },
-    };
-  },
-  components: {
-    NTable,
-    NIcon,
-    NCard,
-    NForm,
-    NFormItem,
-    NInput,
-    NButton,
-    NRadio,
-    NRadioGroup,
-  },
-});
+  }
+};
 </script>
 
 <style>
@@ -302,18 +296,6 @@ export default defineComponent({
   font-size: 17px;
   font-weight: 700;
   margin-bottom: 3vh;
-}
-.table {
-  width: 70vw;
-  margin: 0 auto;
-}
-.table th {
-  font-weight: 700;
-}
-
-.table th,
-.table td {
-  text-align: center;
 }
 
 .dialog {

@@ -27,7 +27,7 @@ type RowData = {
   key: number;
   orderDetailId: number;
   orderId: number;
-  status: 0 | 1 | 2 | 3; //0-未支付 1-已支付待填表 2-已填表
+  status: number; //0-未支付 1-已支付待填表 2-已填表
   commodityId: number;
   boughtQuantity: number;
   invPrice: number;
@@ -39,26 +39,53 @@ const createColumns = (): DataTableColumns<RowData> => [
   {
     title: "订单号",
     align: "center",
-    width: 150,
+    width: 100,
     key: "orderDetailId",
     sorter: "default",
   },
   {
     title: "商品名",
     align: "center",
-    width: 150,
+    width: 180,
     key: "commodityName",
   },
   {
     title: "购买来源",
     align: "center",
     key: "contact",
+    width: 250,
   },
   {
     title: "状态",
     align: "center",
     width: 100,
     key: "status",
+    filter(value, row) {
+      return !!~String(row.status).indexOf(value.toString());
+    },
+    defaultFilterOptionValues: [0, 1, 2, 3],
+    filterOptions: [
+      {
+        label: "未支付",
+        value: 0,
+      },
+      {
+        label: "待填表",
+        value: 1,
+      },
+      {
+        label: "已填表",
+        value: 2,
+      },
+      {
+        label: "已审核",
+        value: 3,
+      },
+      {
+        label: "已废弃",
+        value: 9,
+      },
+    ],
     render(row) {
       switch (row.status) {
         case 0:
@@ -69,6 +96,8 @@ const createColumns = (): DataTableColumns<RowData> => [
           return h(NTag, { type: "success" }, { default: () => "已填表" });
         case 3:
           return h(NTag, { type: "info" }, { default: () => "已审核" });
+        case 9:
+          return h(NTag, { type: "error" }, { default: () => "已废弃" });
       }
     },
   },
@@ -96,11 +125,11 @@ const checkedRowKeysRef = ref<DataTableRowKey[]>([]);
 const data: RowData[] = reactive([]);
 
 const updateData = function () {
-  while(data.length){
-    data.splice(0,1)
+  while (data.length) {
+    data.splice(0, 1);
   }
   axios({
-    url: "/v1/mp/order",
+    url: "/v2/mp/manager/order",
   }).then((res) => {
     res.data.forEach((element: any) => {
       element.orderDetailInfoGroup.forEach((i: any) => {
@@ -124,7 +153,7 @@ export default defineComponent({
       pagination: {
         pageSize: 6,
       },
-      updateData
+      updateData,
     };
   },
   components: {
