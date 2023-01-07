@@ -1,12 +1,11 @@
-<template>
-  <div class="login">
+<template>  <div class="login">
     <n-input v-model:value="psd" />
     <n-button type="success" @click="check()">验证</n-button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from "vue";
+import { defineComponent, ref } from "vue";
 import { NButton, NInput } from "naive-ui";
 import route from "@/router";
 const psd = ref("");

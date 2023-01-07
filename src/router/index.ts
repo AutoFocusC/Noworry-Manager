@@ -1,47 +1,55 @@
-import { getCookie } from '@/method/cookie';
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { getCookie } from "@/method/cookie";
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/',
-    redirect:"/home"
+    path: "/",
+    redirect: "/home",
   },
   {
-    path: '/login',
-    component: () => import("@/views/LoginView.vue")
+    path: "/login",
+    component: () => import("@/views/LoginView.vue"),
   },
   {
-    path: '/home',
-    component: () => import("@/views/HomeView.vue")
+    path: "/home",
+    component: () => import("@/views/HomeView.vue"),
   },
   {
-    path: '/commodity',
-    component: () => import("@/views/CommodityView.vue")
+    path: "/commodity",
+    component: () => import("@/views/CommodityView.vue"),
   },
   {
-    path: '/order',
-    component: () => import("@/views/OrderView.vue")
+    path: "/order",
+    component: () => import("@/views/OrderView.vue"),
   },
   {
     name: "detail",
-    path: '/detail',
+    path: "/detail",
     component: () => import("@/views/OrderDetailView.vue"),
-  }
-]
+  },
+  {
+    name: "favOff",
+    path: "/favoff",
+    component: () => import("@/views/FavOff.vue"),
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
+  routes,
+});
 
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   const time = Date.now();
-  if (time - Number(getCookie("token")) < 1000 * 3600 * 4 || to.fullPath == "/login") {
+  if (
+    time - Number(getCookie("token")) < 1000 * 3600 * 4 ||
+    to.fullPath == "/login"
+  ) {
     document.cookie = `token=${time}`;
-    return true
+    return true;
   } else {
-    return { path: "/login" }
+    return { path: "/login" };
   }
-})
+});
 
-export default router
+export default router;

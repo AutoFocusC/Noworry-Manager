@@ -79,7 +79,7 @@
             preset="card"
             title="Tips管理"
             size="huge"
-            style="max-width: 640px"
+            style="min-width: 640px; width: 70vw"
             :bordered="false"
           >
             <TransitionGroup name="list">

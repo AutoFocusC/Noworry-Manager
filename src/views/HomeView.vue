@@ -1,4 +1,5 @@
-<template>  <div class="menu">
+<template>
+  <div class="menu">
     <div class="menu-item" @click="toCommodity()">
       <n-icon class="icon" size="100">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
@@ -33,7 +34,7 @@
       </n-icon>
       <div>订单查看</div>
     </div>
-    <div class="menu-item">
+    <div class="menu-item" @click="toFavOff">
       <n-icon class="icon" size="100">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
           <path
@@ -46,7 +47,7 @@
           />
         </svg>
       </n-icon>
-      <div>操作指南</div>
+      <div>活动优惠</div>
     </div>
     <div class="menu-item">
       <n-icon class="icon" size="100">
@@ -67,7 +68,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from "vue";
+import { defineComponent } from "vue";
 import route from "@/router";
 import { NIcon } from "naive-ui";
 export default defineComponent({
@@ -78,6 +79,9 @@ export default defineComponent({
       },
       toOrder: () => {
         route.push({ path: "/order" });
+      },
+      toFavOff: () => {
+        route.push({ path: "/favoff" });
       },
     };
   },
