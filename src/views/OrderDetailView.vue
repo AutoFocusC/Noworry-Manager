@@ -226,7 +226,7 @@ getData();
 const submit = function () {
   const updateBase: OrderBaseStatus = {
     orderId: Number(data.orderId),
-    status: 1, //修改为支付状态
+    status: editing.payStatus, //修改为支付状态
     data: {
       favourablePrice: editing.favourablePrice,
     },

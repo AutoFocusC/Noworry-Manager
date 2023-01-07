@@ -1,22 +1,24 @@
-<template>  <div class="table">
+<template>
+  <div class="table">
     <header class="headerFav">
       <n-button>刷新</n-button>
 
       <n-button type="primary" @click="() => (isShowAddModal = true)"
-        >批量新增</n-button
+        >生成优惠券</n-button
       >
       <n-modal
         v-model:show="isShowAddModal"
         class="custom-card"
         preset="card"
-        title="批量创建优惠码"
+        title="批量创建优惠券"
         size="huge"
-        style="min-width: 640px; width: 70vw"
+        style="min-width: 640px; width: 70vw; min-height: 300px"
       >
-        <n-form label-placement="left">
-          <n-form-item label="优惠价格">
+        <n-form class="form" label-placement="left">
+          <n-form-item class="form-item" label="优惠价格">
             <n-input-number
               v-model:value="editData.offPrice"
+              placeholder="额，加号其实更方便些"
               :min="1"
               :max="99"
               :step="5"
@@ -24,24 +26,46 @@
               <template #prefix> ￡ </template>
             </n-input-number></n-form-item
           >
-          <n-form-item label="失效时间">
+          <n-form-item class="form-item" label="失效时间">
             <n-date-picker
               type="datetime"
-              format="本年MM月dd日 : HH时"
+              format="MM-dd HH:00"
               v-model:value="editData.endTime"
           /></n-form-item>
-          <n-form-item label="生成数量">
-            <n-input-number v-model:value="editData.genNum" :min="1"
+          <n-form-item class="form-item" label="生成数量">
+            <n-input-number
+              placeholder="建议不要太多"
+              v-model:value="editData.genNum"
+              :min="1"
+              :max="40"
           /></n-form-item>
-          <n-form-item label="优惠简介">
-            <n-input v-model:value="editData.commet"
+          <n-form-item class="form-item" label="优惠简介">
+            <n-input
+              placeholder="真的不要写点什么吗"
+              v-model:value="editData.commet"
           /></n-form-item>
         </n-form>
 
         <div class="btn-flex">
-          <n-button type="primary" @click="() => (isShowAddModal = true)"
-            >上传</n-button
-          >
+          <n-popover trigger="hover" placement="bottom">
+            <template #trigger>
+              <n-button type="primary" @click="() => (isShowAddModal = true)"
+                >生成</n-button
+              >
+            </template>
+            <span>确定很容易，撤回则不然</span>
+          </n-popover>
+        </div>
+        <div class="btn-flex">
+          <n-table>
+            <tbody>
+              <tr v-for="(_, id) in Math.ceil(newFavs.length / 5)" :key="id">
+                <td style="text-align:center" v-for="(_, index) in 5" :key="index">
+                  <b>{{ newFavs[index + id * 5] || "" }}</b>
+                </td>
+              </tr>
+            </tbody>
+          </n-table>
         </div>
       </n-modal>
     </header>
@@ -58,6 +82,7 @@
 import {
   NButton,
   NCard,
+  NTable,
   NDataTable,
   NModal,
   NPopover,
@@ -128,7 +153,7 @@ function createcolumusFrame(): DataTableColumns<RowData> {
                 isShowModify.value = true;
               },
             },
-            () => "查看",
+            () => "查看"
           ),
           h(
             NModal,
@@ -139,7 +164,7 @@ function createcolumusFrame(): DataTableColumns<RowData> {
                 isShowModify.value = false;
               },
             },
-            () => h(NCard, null, () => "hi"),
+            () => h(NCard, null, () => "hi")
           ),
           h(
             NPopover,
@@ -155,19 +180,36 @@ function createcolumusFrame(): DataTableColumns<RowData> {
                     tag: "div",
                     disabled: true,
                   },
-                  () => "删除",
+                  () => "删除"
                 );
               },
               default() {
                 return h("span", null, "只能删除已过期的记录");
               },
-            },
+            }
           ),
         ];
       },
     },
   ];
 }
+
+const newFavs = reactive([
+  "ASWSASWD",
+  "ASWSASWD",
+  "ASWSASWD",
+  "ASWSASWD",
+  "ASWSASWD",
+  "ASWSASWD",
+  "ASWSASWD",
+  "ASWSASWD",
+  "ASWSASWD",
+  "ASWSASWD",
+  "ASWSASWD",
+  "ASWSASWD",
+  "ASWSASWD",
+  "ASWSASWD",
+]);
 </script>
 
 <style scoped>
@@ -180,5 +222,22 @@ function createcolumusFrame(): DataTableColumns<RowData> {
   display: flex;
   justify-content: space-between;
   margin-bottom: 1em;
+}
+
+.form {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+.form-item {
+  width: 40%;
+  margin: 0 4%;
+}
+
+.btn-flex {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 1% 0;
 }
 </style>
