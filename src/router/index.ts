@@ -1,5 +1,4 @@
-import { getCookie } from "@/method/cookie";
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import { getCookie } from "@/method/cookie";import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {
