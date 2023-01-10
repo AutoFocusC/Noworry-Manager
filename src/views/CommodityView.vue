@@ -49,12 +49,15 @@
           />
         </n-form-item>
 
-        <n-form-item label="商品类型">
+        <n-form-item label="商品区域">
           <n-radio-group v-model:value="editing.commodityType">
+            <n-radio :value="15">美签</n-radio>
             <n-radio :value="11">申根</n-radio>
             <n-radio :value="12">北欧</n-radio>
             <n-radio :value="13">美签</n-radio>
-            <n-radio :value="14">亚洲</n-radio>
+            <n-radio :value="14">日本</n-radio>
+            <n-radio :value="16">新加坡</n-radio>
+
           </n-radio-group>
         </n-form-item>
 
@@ -127,8 +130,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, reactive, h } from "vue";
+<script setup lang="ts">
+import { ref, reactive, h } from "vue";
 import {
   NModal,
   NButton,
@@ -180,7 +183,7 @@ const createColumns = (): DataTableColumns<VisaResult> => [
     key: "commodityName",
   },
   {
-    title: "商品类别",
+    title: "商品区域",
     align: "center",
     width: 80,
     key: "commodityType",
@@ -196,7 +199,11 @@ const createColumns = (): DataTableColumns<VisaResult> => [
             case 13:
               return "美签";
             case 14:
-              return "亚洲";
+              return "日本";
+            case 15:
+              return "英国";
+            case 16:
+              return "新加坡";
           }
         },
       });
@@ -225,10 +232,10 @@ const createColumns = (): DataTableColumns<VisaResult> => [
             h(
               NButton,
               { onClick: () => deleteData(row.commodityId), type: "error" },
-              { default: () => "删除" },
+              { default: () => "删除" }
             ),
           ],
-        },
+        }
       );
     },
   },
@@ -242,9 +249,7 @@ const editing = reactive<editingData>({
   commodityType: 11,
   currentPrice: "",
   commodityBrief: "",
-  initialQuantity: null,
   originPrice: null,
-  remainQuantity: 20,
   commodityStatus: 0,
   picLink: "",
   picLinkTem: "",
@@ -267,11 +272,9 @@ const edit = function (row?: VisaResult) {
     editing.commodityType = 11;
     editing.currentPrice = "";
     editing.commodityBrief = "";
-    editing.initialQuantity = null;
     editing.originPrice = null;
-    editing.remainQuantity = 20;
-    editing.picLink = "";
-    editing.picLinkTem = "";
+    editing.picLink = "2";
+    editing.picLinkTem = "2";
   }
 };
 
@@ -383,7 +386,7 @@ async function onUploadFin(options: UploadCustomRequestOptions) {
       data: { image: { url: string }; medium: { url: string } };
     }>;
     const respose: resposeType = await axios({
-      url: "https://api.imgbb.com/1/upload",
+      url: "https://4997xs4632.goho.co/v2/mp/manager/visa/picture",
       method: "POST",
       data: formdata,
       headers: { "content-type": "multipart/form-data" },
@@ -406,52 +409,11 @@ const onSUB = createEnv(editing, EnvType.SUB);
 function newTips() {
   editing.tips.push({ id: Symbol(), children: [], title: "", path: [0] });
 }
-export default defineComponent({
-  setup() {
-    updateData();
-    return {
-      data,
-      typeGroup,
-      columns: createColumns(),
-      checkedRowKeys: checkedRowKeysRef,
-      pagination: {
-        pageSize: 6,
-      },
-      edit,
-      editing,
-      dialog,
-      submit,
-      updateData,
-      hideDialog,
-      beforeFileUpload,
-      onUploadFin,
-      permissionForSave,
-      showModal,
-      onADD,
-      onUPA,
-      onDEL,
-      onUP,
-      onSUB,
-      createEnv,
-      EnvType,
-      newTips,
-    };
-  },
-  components: {
-    NDataTable,
-    NButton,
-    NCard,
-    NForm,
-    NFormItem,
-    NInput,
-    NRadioGroup,
-    NRadio,
-    NMessageProvider,
-    NUpload,
-    NModal,
-    ReTips,
-  },
-});
+updateData();
+const columns = createColumns();
+const pagination = {
+  pageSize: 6,
+};
 </script>
 
 <style>

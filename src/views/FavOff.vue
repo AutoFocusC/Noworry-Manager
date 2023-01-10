@@ -2,7 +2,7 @@
   <div class="table">
     <header class="headerFav">
       <n-button
-        @click="() => tableProcess.getFavCodes()"
+        @click="() => tableProcess.updateData()"
         :loading="tableProcess.status.isLoading.value"
         >刷新</n-button
       >
@@ -139,7 +139,7 @@ class FavCodeFormStatus {
     codeList = [],
     isLoading = false,
     isShowModal = false,
-    canUpload = true,
+    canUpload = true
   ) {
     this.codeList = codeList;
     this.isLoading = ref(isLoading);
@@ -166,7 +166,7 @@ class FavCodeFormData {
     genNum: number,
     endTime: number,
     offPrice: number,
-    comment: string,
+    comment: string
   ) {
     this.genNum = genNum;
     this.endTime = endTime;
@@ -183,8 +183,8 @@ class GenFavCodeProcess {
       1,
       new Date().setDate(new Date().getDate() + 2),
       10,
-      "节日特惠",
-    ),
+      "节日特惠"
+    )
   ) {
     this.stat = stat;
     this.form = reactive(form);
@@ -251,7 +251,7 @@ class GetFavCodeProcess {
     this.status = new FavCodeTableStatus();
     this.getFavCodes().then((res) => this.tableData.splice(0, 0, ...res));
   }
-  async getFavCodes() {
+  private async getFavCodes() {
     this.status.isLoading.value = true;
     const { data } = await axios.get<RowData[]>("v2/mp/manager/fav");
     data.map((e) => {
@@ -266,6 +266,12 @@ class GetFavCodeProcess {
     this.status.isLoading.value = false;
     return data;
   }
+
+  async updateData() {
+    const result = await this.getFavCodes();
+    this.tableData.length = 0;
+    this.tableData.push(...result);
+  }
 }
 const tableProcess = new GetFavCodeProcess();
 
@@ -275,7 +281,7 @@ function createcolumusFrame(): DataTableColumns<RowData> {
   const isShowModify = ref(false);
   return [
     {
-      title: "截止时间",
+      title: "过期时间",
       key: "validityTime",
     },
     {
@@ -303,7 +309,7 @@ function createcolumusFrame(): DataTableColumns<RowData> {
                 isShowModify.value = true;
               },
             },
-            () => "详情",
+            () => "详情"
           ),
           h(
             NModal,
@@ -314,7 +320,7 @@ function createcolumusFrame(): DataTableColumns<RowData> {
                 isShowModify.value = false;
               },
             },
-            () => h(NCard, null, () => "hi"),
+            () => h(NCard, null, () => "hi")
           ),
           h(
             NPopover,
@@ -330,13 +336,13 @@ function createcolumusFrame(): DataTableColumns<RowData> {
                     tag: "div",
                     disabled: true,
                   },
-                  () => "删除",
+                  () => "删除"
                 );
               },
               default() {
                 return h("span", null, "只能删除*已过期*的记录");
               },
-            },
+            }
           ),
         ];
       },

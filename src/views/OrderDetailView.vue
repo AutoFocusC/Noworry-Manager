@@ -39,15 +39,11 @@
         <tr>
           <td>{{ data.remark }}</td>
           <td>
+            <n-tag :type='data.status == "0"? "error": data.status == "1"? "warning": data.status == "2"? "success": data.status == "3"? "info":"success"'>
             {{
-              data.status == "0"
-                ? "未支付"
-                : data.status == "1"
-                ? "待填表"
-                : data.status == "2"
-                ? "已填表"
-                : "已审核"
+              data.status == "0"? "未支付": data.status == "1"? "待填表": data.status == "2"? "已填表": data.status == "3"? "已审核":"已完成"
             }}
+            </n-tag>
           </td>
           <td colspan="2">{{ data.contact }}</td>
         </tr>
@@ -83,7 +79,15 @@
     <n-button type="success">复核</n-button>
   </div>
 
-  <div style="margin: 2vw" @click="deleteOrder()">
+  <div
+    style="margin: 2vw"
+    @click="finishOrder()"
+    v-if="Number(data.status) == 3"
+  >
+    <n-button type="info">刷签完成 ※ 下发通知</n-button>
+  </div>
+
+  <div style="margin: 2vw" @click="deleteOrder()" v-if="Number(data.status) != 4">
     <n-button type="error">删除订单</n-button>
   </div>
 
@@ -111,6 +115,14 @@
           <n-input
             v-model:value="editing.favourablePrice"
             placeholder="请输入英镑价格"
+          />
+        </n-form-item>
+        <n-form-item label="实际支付" path="inputValue">
+          <n-input
+            v-model:value="editing.orderPaymentPrice"
+            :placeholder="`应为 ￡${
+              Number(data.orderTotalPrice) - editing.favourablePrice
+            }`"
           />
         </n-form-item>
 
@@ -170,13 +182,14 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, ref, reactive } from "vue";
+import { defineComponent, ref, reactive, watch } from "vue";
 import route from "@/router";
 import {
   NTable,
   NIcon,
   NCard,
   NForm,
+  NTag,
   NFormItem,
   NInput,
   NButton,
@@ -187,14 +200,25 @@ import { useRoute } from "vue-router";
 import axios from "axios";
 import InfoTable from "@/components/InfoTable.vue";
 import { OrderBaseStatus, OrderDetailStatus } from "@/entity/request/submit";
-import {translate} from "@/method/tools"
+import { translate } from "@/method/tools";
 const form: any = reactive({});
 const formKeys: any = reactive([]);
 //编辑或新增商品
 const dialog = ref(false);
 
 const editing: any = reactive({});
-
+watch(
+  editing,
+  () => {
+    if (editing.payStatus == 1) {
+      editing.orderPaymentPrice =
+        Number(data.orderTotalPrice) - editing.favourablePrice;
+    } else {
+      editing.orderPaymentPrice = null;
+    }
+  },
+  { deep: true, immediate: true }
+);
 const hideDialog = () => {
   dialog.value = false;
 };
@@ -202,12 +226,14 @@ const data = reactive(useRoute().query);
 if (data.status == "0") {
   editing.orderId = data.orderId;
   editing.favourablePrice = data.favourablePrice;
+  editing.orderPaymentPrice = data.orderPaymentPrice;
   editing.payStatus = 0;
 }
 const edit = function (row?: any) {
   dialog.value = !dialog.value;
 };
 
+console.log(data);
 const getData = function () {
   axios({
     url: `/v2/mp/manager/order/form/${data.orderDetailId}`,
@@ -229,6 +255,7 @@ const submit = function () {
     status: editing.payStatus, //修改为支付状态
     data: {
       favourablePrice: editing.favourablePrice,
+      orderPaymentPrice: editing.orderPaymentPrice,
     },
   };
   axios({
@@ -269,6 +296,28 @@ const submit2 = function () {
     });
 };
 
+const finishOrder = () => {
+  if (confirm("该签将会被标记为已完成，是否确定？")) {
+    const updateDetail: OrderDetailStatus = {
+    orderDetailId: editing.orderDetailId,
+    status: 4, //修改为已通过状态
+  };
+  axios({
+    url: `/v2/mp/manager/order/detail`,
+    method: "POST",
+    data: updateDetail,
+  })
+    .then(() => {
+      alert("修改成功");
+      hideDialog();
+      route.push("/order");
+    })
+    .catch((err) => {
+      console.log(err);
+      alert("修改失败");
+    });
+  }
+};
 const deleteOrder = () => {
   if (confirm("警告！相关订单也将被一起删除，确认删除该订单？")) {
     axios

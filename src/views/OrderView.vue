@@ -33,6 +33,8 @@ type RowData = {
   invPrice: number;
   remark: string;
   commodityName: string;
+  contact:string,
+  createTime:string
 };
 
 const createColumns = (): DataTableColumns<RowData> => [
@@ -53,7 +55,15 @@ const createColumns = (): DataTableColumns<RowData> => [
     title: "购买来源",
     align: "center",
     key: "contact",
-    width: 250,
+    width: 100,
+    render:(row)=>h("div",null,row.contact.split(',')[0])
+  },
+  {
+    title: "购买时间",
+    align: "center",
+    key: "createTime",
+    width: 120,
+    render:(row)=>h("div",null,row.createTime.slice(5,-8).replace('T',' '))
   },
   {
     title: "状态",
@@ -82,6 +92,10 @@ const createColumns = (): DataTableColumns<RowData> => [
         value: 3,
       },
       {
+        label: "已完成",
+        value: 4,
+      },
+      {
         label: "已废弃",
         value: 9,
       },
@@ -96,6 +110,8 @@ const createColumns = (): DataTableColumns<RowData> => [
           return h(NTag, { type: "success" }, { default: () => "已填表" });
         case 3:
           return h(NTag, { type: "info" }, { default: () => "已审核" });
+        case 4:
+          return h(NTag, { type: "success" }, { default: () => "已完成" });
         case 9:
           return h(NTag, { type: "error" }, { default: () => "已废弃" });
       }

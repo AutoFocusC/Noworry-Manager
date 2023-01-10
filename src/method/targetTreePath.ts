@@ -81,9 +81,7 @@ export type editingData = {
   commodityType: number;
   currentPrice: string;
   commodityBrief: string;
-  initialQuantity: null;
   originPrice: null;
-  remainQuantity: number;
   commodityStatus: number;
   picLink: string;
   picLinkTem: string;
