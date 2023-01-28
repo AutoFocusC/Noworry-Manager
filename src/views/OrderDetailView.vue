@@ -22,6 +22,7 @@
           <th>商品名称</th>
           <th>订单总价</th>
           <th>优惠价格</th>
+          <th>实际支付</th>
         </tr>
       </thead>
       <tbody>
@@ -30,22 +31,58 @@
           <td>{{ data.commodityName }}</td>
           <td>{{ data.orderTotalPrice }}</td>
           <td>{{ data.favourablePrice }}</td>
+          <td>{{ data.orderPaymentPrice }}</td>
         </tr>
         <tr>
           <th>递签城市</th>
           <th>订单状态</th>
           <th colspan="2">联系地址</th>
+          <th>操作</th>
         </tr>
         <tr>
           <td>{{ data.remark }}</td>
           <td>
-            <n-tag :type='data.status == "0"? "error": data.status == "1"? "warning": data.status == "2"? "success": data.status == "3"? "info":"success"'>
-            {{
-              data.status == "0"? "未支付": data.status == "1"? "待填表": data.status == "2"? "已填表": data.status == "3"? "已审核":"已完成"
-            }}
+            <n-tag
+              :type="
+                data.status == '0'
+                  ? 'error'
+                  : data.status == '1'
+                  ? 'warning'
+                  : data.status == '2'
+                  ? 'success'
+                  : data.status == '3'
+                  ? 'info'
+                  : data.status == '4'
+                  ? 'info'
+                  : 'success'
+              "
+            >
+              {{
+                data.status == "0"
+                  ? "未支付"
+                  : data.status == "1"
+                  ? "待填表"
+                  : data.status == "2"
+                  ? "已填表"
+                  : data.status == "3"
+                  ? "已审核"
+                  : data.status == "4"
+                  ? "已刷位"
+                  : data.status == "5"
+                  ? "已完成"
+                  : "加载中"
+              }}
             </n-tag>
           </td>
           <td colspan="2">{{ data.contact }}</td>
+          <td>
+            <!-- <n-button v-if="data.status == 1" type="warning">
+              邮件提醒
+            </n-button> -->
+            <n-button v-if="data.status == 2" type="warning" @click="exportCsv">
+              导出表格
+            </n-button>
+          </td>
         </tr>
       </tbody>
     </n-table>
@@ -71,24 +108,24 @@
   <!-- 根据id的不同传参 -->
   <InfoTable :data="data" :form="form"></InfoTable>
 
-  <div
-    style="margin: 2vw"
-    @click="edit(data.status)"
-    v-if="Number(data.status) == 0 || Number(data.status) == 2"
-  >
-    <n-button type="success">复核</n-button>
+  <div style="margin: 2vw" v-if="Number(data.status) == 0">
+    <n-button type="success" @click="edit(data.status)">复核订单</n-button>
   </div>
 
-  <div
-    style="margin: 2vw"
-    @click="finishOrder()"
-    v-if="Number(data.status) == 3"
-  >
-    <n-button type="info">刷签完成 ※ 下发通知</n-button>
+  <div style="margin: 2vw" v-if="Number(data.status) == 2">
+    <n-button type="success" @click="edit(data.status)">复核表单</n-button>
   </div>
 
-  <div style="margin: 2vw" @click="deleteOrder()" v-if="Number(data.status) != 4">
-    <n-button type="error">删除订单</n-button>
+  <div style="margin: 2vw" v-if="Number(data.status) == 3">
+    <n-button type="info" @click="finishOrder(4)">刷签完成 ※ 下发通知</n-button>
+  </div>
+
+  <div style="margin: 2vw" v-if="Number(data.status) == 4">
+    <n-button type="info" @click="finishOrder(5)">递签完成,结束订单</n-button>
+  </div>
+
+  <div style="margin: 2vw" v-if="Number(data.status) != 5">
+    <n-button type="error" @click="deleteOrder()">删除订单</n-button>
   </div>
 
   <div class="dialog" v-if="dialog">
@@ -121,13 +158,13 @@
           <n-input
             v-model:value="editing.orderPaymentPrice"
             :placeholder="`应为 ￡${
-              Number(data.orderTotalPrice) - editing.favourablePrice
+              data.orderTotalPrice - data.favourablePrice
             }`"
           />
         </n-form-item>
 
         <n-form-item label="订单状态">
-          <n-radio-group v-model:value="editing.payStatus">
+          <n-radio-group v-model:value="editing.status">
             <n-radio :value="0">未支付</n-radio>
             <n-radio :value="1">已支付</n-radio>
           </n-radio-group>
@@ -195,6 +232,7 @@ import {
   NButton,
   NRadio,
   NRadioGroup,
+  createDiscreteApi,
 } from "naive-ui";
 import { useRoute } from "vue-router";
 import axios from "axios";
@@ -210,7 +248,7 @@ const editing: any = reactive({});
 watch(
   editing,
   () => {
-    if (editing.payStatus == 1) {
+    if (editing.status == 1) {
       editing.orderPaymentPrice =
         Number(data.orderTotalPrice) - editing.favourablePrice;
     } else {
@@ -222,19 +260,32 @@ watch(
 const hideDialog = () => {
   dialog.value = false;
 };
-const data = reactive(useRoute().query);
-if (data.status == "0") {
-  editing.orderId = data.orderId;
-  editing.favourablePrice = data.favourablePrice;
-  editing.orderPaymentPrice = data.orderPaymentPrice;
-  editing.payStatus = 0;
-}
+const routeData = reactive(useRoute().query);
+
+const data = reactive({}) as any;
+
 const edit = function (row?: any) {
   dialog.value = !dialog.value;
+  if (data.status == 0) {
+    editing.orderId = data.orderId;
+    editing.favourablePrice = data.favourablePrice;
+    editing.orderPaymentPrice = data.orderPaymentPrice;
+    editing.status = 0;
+  }
 };
 
-console.log(data);
-const getData = function () {
+const getData = async function () {
+  const data1 = await axios({ url: `/v1/mp/order/info/${routeData.orderId}` });
+  const data2 = await axios({
+    url: `/v1/mp/order/detail/${routeData.orderDetailId}`,
+  });
+  const keys1 = Object.keys(data1.data);
+  const keys2 = Object.keys(data2.data);
+  console.log(keys1, keys2);
+
+  keys1.forEach((key) => (data[key] = data1.data[key]));
+  keys2.forEach((key) => (data[key] = data2.data[key]));
+
   axios({
     url: `/v2/mp/manager/order/form/${data.orderDetailId}`,
     method: "GET",
@@ -252,7 +303,7 @@ getData();
 const submit = function () {
   const updateBase: OrderBaseStatus = {
     orderId: Number(data.orderId),
-    status: editing.payStatus, //修改为支付状态
+    status: editing.status, //修改为支付状态
     data: {
       favourablePrice: editing.favourablePrice,
       orderPaymentPrice: editing.orderPaymentPrice,
@@ -296,26 +347,29 @@ const submit2 = function () {
     });
 };
 
-const finishOrder = () => {
-  if (confirm("该签将会被标记为已完成，是否确定？")) {
+const finishOrder = (status: 4 | 5) => {
+  if (
+    confirm("该签将会被标记为已完成，是否确定？") &&
+    (status == 4 || status == 5)
+  ) {
     const updateDetail: OrderDetailStatus = {
-    orderDetailId: editing.orderDetailId,
-    status: 4, //修改为已通过状态
-  };
-  axios({
-    url: `/v2/mp/manager/order/detail`,
-    method: "POST",
-    data: updateDetail,
-  })
-    .then(() => {
-      alert("修改成功");
-      hideDialog();
-      route.push("/order");
+      orderDetailId: editing.orderDetailId,
+      status: status, //修改为已通过状态
+    };
+    axios({
+      url: `/v2/mp/manager/order/detail`,
+      method: "POST",
+      data: updateDetail,
     })
-    .catch((err) => {
-      console.log(err);
-      alert("修改失败");
-    });
+      .then(() => {
+        alert("修改成功");
+        hideDialog();
+        route.push("/order");
+      })
+      .catch((err) => {
+        console.log(err);
+        alert("修改失败");
+      });
   }
 };
 const deleteOrder = () => {
@@ -331,6 +385,22 @@ const deleteOrder = () => {
         alert("删除失败");
       });
   }
+};
+const exportCsv = () => {
+  axios
+    .get(`/v2/mp/manager/order/export/${data.orderDetailId}`, {
+      responseType: "blob",
+    })
+    .then((res) => {
+      let blob = res.data;
+      var blobURL = window.webkitURL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.download = "sheet.csv";
+      a.href = blobURL;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
 };
 </script>
 
