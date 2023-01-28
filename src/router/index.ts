@@ -1,4 +1,4 @@
-import { getCookie } from "@/method/cookie";import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import { getCookie } from "@/method/cookie"; import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -40,11 +40,9 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const time = Date.now();
-  if (
-    time - Number(getCookie("token")) < 1000 * 3600 * 4 ||
-    to.fullPath == "/login"
-  ) {
-    document.cookie = `token=${time}`;
+  if (time - Number(getCookie("timer")) < 1000 * 3600 * 4) {
+    document.cookie = `timer=${time}`;
+  } else if (to.fullPath == "/login") {
     return true;
   } else {
     return { path: "/login" };
