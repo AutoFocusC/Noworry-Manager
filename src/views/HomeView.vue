@@ -1,5 +1,4 @@
-<template>
-  <div class="menu">
+<template>  <div class="menu">
     <div class="menu-item" @click="toCommodity()">
       <n-icon class="icon" size="100">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
@@ -49,7 +48,7 @@
       </n-icon>
       <div>活动优惠</div>
     </div>
-    <div class="menu-item">
+    <div class="menu-item" @click="toCarouse">
       <n-icon class="icon" size="100">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
           <path
@@ -62,7 +61,7 @@
           />
         </svg>
       </n-icon>
-      <div>面板设置</div>
+      <div>封面管理</div>
     </div>
   </div>
 </template>
@@ -82,6 +81,9 @@ export default defineComponent({
       },
       toFavOff: () => {
         route.push({ path: "/favoff" });
+      },
+      toCarouse: () => {
+        route.push({ path: "/carouse" });
       },
     };
   },
