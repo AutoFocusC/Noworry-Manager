@@ -46,8 +46,13 @@
         title="查看详情页"
         size="huge"
         style="min-width: 640px; width: 70vw; min-height: 300px"
-        ><div>ds</div></n-modal
       >
+        <img
+          class="carousel-img"
+          style="height: 73%"
+          :src="detailList[modifyCoverProcess.stat.modifyingImgIndex.value]"
+        />
+      </n-modal>
       <n-modal
         v-model:show="modifyCoverProcess.stat.isShowModifyModal.value"
         class="custom-card"
@@ -59,7 +64,6 @@
         <n-form label-placement="left">
           <n-form-item label="待更改图片">
             <img
-              height="200"
               :src="coverList[modifyCoverProcess.stat.modifyingImgIndex.value]"
           /></n-form-item>
           <n-form-item label="上传新图片">
@@ -109,6 +113,12 @@ const coverList = [
   "http://122.9.107.17/static/home/17b2.jpg",
   "http://122.9.107.17/static/home/17b3.jpg",
   "http://122.9.107.17/static/home/17b4.jpg",
+] as const;
+const detailList = [
+  "http://122.9.107.17/static/home/poster1.jpg",
+  "http://122.9.107.17/static/home/poster2.jpg",
+  "http://122.9.107.17/static/home/poster3.jpg",
+  "http://122.9.107.17/static/home/poster4.png",
 ] as const;
 const SELECT_DEATIL: TSELECT_DEATIL = 0;
 const SELECT_MODIFY: TSELECT_MODIFY = 1;
