@@ -39,9 +39,17 @@
           <img class="carousel-img" :src="coverList[3]"
         /></n-dropdown>
       </n-carousel>
-
       <n-modal
-        v-model:show="modifyCoverProcess.stat.isShowModal.value"
+        v-model:show="modifyCoverProcess.stat.isShowDetailModal.value"
+        class="custom-card"
+        preset="card"
+        title="查看详情页"
+        size="huge"
+        style="min-width: 640px; width: 70vw; min-height: 300px"
+        ><div>ds</div></n-modal
+      >
+      <n-modal
+        v-model:show="modifyCoverProcess.stat.isShowModifyModal.value"
         class="custom-card"
         preset="card"
         title="修改封面图片"
@@ -56,14 +64,19 @@
           /></n-form-item>
           <n-form-item label="上传新图片">
             <n-upload
+              :keep-file-after-finish="true"
               :max="1"
               list-type="image"
-              :custom-request="(op) => modifyCoverProcess.onUploadFin(op)"
+              :custom-request="(op) => modifyCoverProcess.onUpload(op)"
             >
               <n-button>上传图片</n-button>
             </n-upload>
           </n-form-item>
-          <n-button type="primary">确认</n-button>
+          <n-button
+            type="primary"
+            @click="() => modifyCoverProcess.onConfirmClick()"
+            >确认</n-button
+          >
         </n-form>
       </n-modal>
     </header>
@@ -105,11 +118,15 @@ const options = [
 ];
 
 class CoverStatus {
-  isShowModal: Ref<boolean>;
+  isShowModifyModal: Ref<boolean>;
+  isShowDetailModal: Ref<boolean>;
   modifyingImgIndex: Ref<number>;
+  uploadFile: File | null;
   constructor() {
-    this.isShowModal = ref(false);
+    this.isShowModifyModal = ref(false);
     this.modifyingImgIndex = ref(0);
+    this.uploadFile = null;
+    this.isShowDetailModal = ref(false);
   }
 }
 class ModifyCoverProcess {
@@ -119,11 +136,15 @@ class ModifyCoverProcess {
   }
   onModifyCoverSelect(method: TSELECT_DEATIL | TSELECT_MODIFY, index: number) {
     //method是用户下拉框中选择的类型,index是图片的序号
-    this.stat.isShowModal.value = true;
     this.stat.modifyingImgIndex.value = index;
+    if (method === SELECT_DEATIL) {
+      this.stat.isShowDetailModal.value = true;
+    }
+    if (method === SELECT_MODIFY) {
+      this.stat.isShowModifyModal.value = true;
+    }
   }
-  async onUploadFin(options: UploadCustomRequestOptions) {
-    const { message } = createDiscreteApi(["message"]);
+  onUpload(options: UploadCustomRequestOptions) {
     if (options.file.file) {
       const { notification } = createDiscreteApi(["notification"]);
       //弹出提示
@@ -134,26 +155,33 @@ class ModifyCoverProcess {
           title: "图片大小大于10MB，将图片导致加载缓慢",
         });
       }
-      const formdata = new FormData();
-      const serverPath =
-        coverList[this.stat.modifyingImgIndex.value].split("/");
-      formdata.append("img", options.file.file);
-      formdata.append("path", serverPath[serverPath.length - 1]);
+      this.stat.uploadFile = options.file.file;
+    }
+  }
+  async onConfirmClick() {
+    const { message } = createDiscreteApi(["message"]);
+    const formdata = new FormData();
+    const serverPath = coverList[this.stat.modifyingImgIndex.value].split("/");
+    this.stat.uploadFile && formdata.append("img", this.stat.uploadFile);
+    formdata.append("path", serverPath[serverPath.length - 1]);
 
-      //文件上传前静止提交表单
-      //上传至服务器
-      //   await fetch("http://localhost:39443", {
-      //     method: "POST",
-      //     body: formdata,
-      //   });
-      message.success("上传成功");
+    //文件上传前静止提交表单
+    //上传至服务器
+    //   await fetch("http://localhost:39443", {
+    //     method: "POST",
+    //     body: formdata,
+    //   });
+    try {
       const { data } = await axios({
         url: "/v2/mp/manager/banner",
         method: "POST",
         data: formdata,
       });
+      this.stat.uploadFile = null;
       if (!data.status) message.error("上传失败");
-    } else {
+    } catch (e) {
+      //清除文件缓存
+      this.stat.uploadFile = null;
       message.error("上传失败");
     }
   }
