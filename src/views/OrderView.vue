@@ -33,8 +33,8 @@ type RowData = {
   invPrice: number;
   remark: string;
   commodityName: string;
-  contact:string,
-  createTime:string
+  contact: string;
+  createTime: string;
 };
 
 const createColumns = (): DataTableColumns<RowData> => [
@@ -56,14 +56,15 @@ const createColumns = (): DataTableColumns<RowData> => [
     align: "center",
     key: "contact",
     width: 100,
-    render:(row)=>h("div",null,row.contact.split(',')[0])
+    render: (row) => h("div", null, row.contact.split(",")[0]),
   },
   {
     title: "购买时间",
     align: "center",
     key: "createTime",
     width: 120,
-    render:(row)=>h("div",null,row.createTime.slice(5,-8).replace('T',' '))
+    render: (row) =>
+      h("div", null, row.createTime.slice(5, -8).replace("T", " ")),
   },
   {
     title: "状态",
@@ -73,7 +74,7 @@ const createColumns = (): DataTableColumns<RowData> => [
     filter(value, row) {
       return !!~String(row.status).indexOf(value.toString());
     },
-    defaultFilterOptionValues: [0, 1, 2, 3],
+    defaultFilterOptionValues: [0, 1, 2, 3, 4, 5],
     filterOptions: [
       {
         label: "未支付",
@@ -92,8 +93,12 @@ const createColumns = (): DataTableColumns<RowData> => [
         value: 3,
       },
       {
-        label: "已完成",
+        label: "已刷位",
         value: 4,
+      },
+      {
+        label: "已完成",
+        value: 5,
       },
       {
         label: "已废弃",
@@ -111,6 +116,8 @@ const createColumns = (): DataTableColumns<RowData> => [
         case 3:
           return h(NTag, { type: "info" }, { default: () => "已审核" });
         case 4:
+          return h(NTag, { type: "info" }, { default: () => "已刷位" });
+        case 5:
           return h(NTag, { type: "success" }, { default: () => "已完成" });
         case 9:
           return h(NTag, { type: "error" }, { default: () => "已废弃" });
@@ -133,7 +140,10 @@ const createColumns = (): DataTableColumns<RowData> => [
 ];
 
 const viewDetail = function (row: RowData) {
-  route.push({ name: "detail", query: row });
+  route.push({
+    name: "detail",
+    query: { orderId: row.orderId, orderDetailId: row.orderDetailId },
+  });
 };
 
 const checkedRowKeysRef = ref<DataTableRowKey[]>([]);
@@ -147,6 +157,7 @@ const updateData = function () {
   axios({
     url: "/v2/mp/manager/order",
   }).then((res) => {
+    res.data.reverse();
     res.data.forEach((element: any) => {
       element.orderDetailInfoGroup.forEach((i: any) => {
         i.contact = element.contact;
