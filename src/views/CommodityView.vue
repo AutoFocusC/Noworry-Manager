@@ -57,7 +57,6 @@
             <n-radio :value="13">美签</n-radio>
             <n-radio :value="14">日本</n-radio>
             <n-radio :value="16">新加坡</n-radio>
-
           </n-radio-group>
         </n-form-item>
 
@@ -68,11 +67,9 @@
           />
         </n-form-item>
         <n-form-item label="商品图片">
-          <n-message-provider>
-            <n-upload :max="1" list-type="image" :custom-request="onUploadFin">
-              <n-button>上传文件</n-button>
-            </n-upload>
-          </n-message-provider>
+          <n-upload :max="1" list-type="image" :custom-request="onUploadFin">
+            <n-button>上传文件</n-button>
+          </n-upload>
         </n-form-item>
         <n-form-item label="商品提示">
           <n-button @click="showModal = true">点击查看或修改</n-button>
@@ -143,7 +140,6 @@ import {
   NRadioGroup,
   NRadio,
   NUpload,
-  NMessageProvider,
   createDiscreteApi,
   UploadCustomRequestOptions,
 } from "naive-ui";
@@ -232,10 +228,10 @@ const createColumns = (): DataTableColumns<VisaResult> => [
             h(
               NButton,
               { onClick: () => deleteData(row.commodityId), type: "error" },
-              { default: () => "删除" }
+              { default: () => "删除" },
             ),
           ],
-        }
+        },
       );
     },
   },
@@ -392,7 +388,6 @@ async function onUploadFin(options: UploadCustomRequestOptions) {
       headers: { "content-type": "multipart/form-data" },
     });
     //将服务器返回的图片地址记录下来if (respose.data)i
-    console.log(respose.data.data.image, respose.data.data.medium);
     editing.picLink = respose.data.data.image.url;
     editing.picLinkTem = respose.data.data.medium.url; //记录后就可以提交表单了
     permissionForSave.value = false;

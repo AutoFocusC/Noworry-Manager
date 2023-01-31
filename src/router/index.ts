@@ -1,5 +1,4 @@
-import { getCookie } from "@/method/cookie"; import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-
+import { getCookie } from "@/method/cookie";import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
@@ -19,7 +18,8 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/order",
-    component: () => import("@/views/OrderView.vue"),
+    component: () =>
+      import(/* webpackPrefetch: true */ "@/views/OrderView.vue"),
   },
   {
     name: "detail",
@@ -29,7 +29,13 @@ const routes: Array<RouteRecordRaw> = [
   {
     name: "favOff",
     path: "/favoff",
-    component: () => import("@/views/FavOff.vue"),
+    component: () => import(/* webpackPrefetch: true */ "@/views/FavOff.vue"),
+  },
+  {
+    name: "Carouse",
+    path: "/carouse",
+    component: () =>
+      import(/* webpackPrefetch: true */ "@/views/CarouseManga.vue"),
   },
 ];
 
