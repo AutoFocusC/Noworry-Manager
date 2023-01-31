@@ -39,13 +39,13 @@
           <td>{{ form.chineseName }}</td>
           <td>{{ form.lastName }} {{ form.firstName }}</td>
           <td>
-            {{ form.sex == "0" ? "男" : data.status == "1" ? "女" : "保密" }}
+            {{ form.sex == "0" ? "男" : "女" }}
           </td>
           <td>
             {{
               form.marriedStatus == "0"
                 ? "未婚"
-                : data.status == "1"
+                : form.marriedStatus == "1"
                 ? "已婚"
                 : "离异"
             }}
@@ -158,7 +158,7 @@
           <td>{{ form.chineseName }}</td>
           <td>{{ form.lastName }} {{ form.firstName }}</td>
           <td>
-            {{ form.sex == "0" ? "男" : data.status == "1" ? "女" : "保密" }}
+            {{ form.sex == "0" ? "男" : "女" }}
           </td>
           <td>
             {{
@@ -265,7 +265,7 @@
           <td>{{ form.chineseName }}</td>
           <td>{{ form.lastName }} {{ form.firstName }}</td>
           <td>
-            {{ form.sex == "0" ? "男" : data.status == "1" ? "女" : "保密" }}
+            {{ form.sex == "0" ? "男" : "女" }}
           </td>
           <td>
             {{
@@ -326,8 +326,28 @@
 
 <script setup lang="ts">
 import { defineComponent, defineProps, ref, reactive } from "vue";
-import { NTable } from "naive-ui";
+import { createDiscreteApi, NTable } from "naive-ui";
 defineProps(["data", "form"]);
+
+setTimeout(() => {
+  const tdlist = document.getElementsByTagName("td");
+  for (let i = 0; i < tdlist.length; i++) {
+    tdlist[i].addEventListener("click", () =>
+      onFavCodeTdClick(tdlist[i].innerText)
+    );
+  }
+}, 2000);
+
+const onFavCodeTdClick = async (mes: string) => {
+  if (navigator.clipboard == void 0) return;
+  const { message } = createDiscreteApi(["message"]);
+  try {
+    await navigator.clipboard.writeText(mes);
+    message.success("数据已复制到粘贴板", { duration: 750 });
+  } catch (e) {
+    return;
+  }
+};
 </script>
 
 <style>
@@ -342,5 +362,6 @@ defineProps(["data", "form"]);
 .table th,
 .table td {
   text-align: center;
+  cursor: pointer;
 }
 </style>
