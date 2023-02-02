@@ -124,7 +124,6 @@ import {
   NFormItem,
   NDatePicker,
   createDiscreteApi,
-  c,
 } from "naive-ui";
 import { h, reactive, Ref, ref, UnwrapRef } from "vue";
 import type { DataTableColumns } from "naive-ui";
@@ -139,7 +138,7 @@ class FavCodeFormStatus {
     codeList = [],
     isLoading = false,
     isShowModal = false,
-    canUpload = true
+    canUpload = true,
   ) {
     this.codeList = codeList;
     this.isLoading = ref(isLoading);
@@ -166,7 +165,7 @@ class FavCodeFormData {
     genNum: number,
     endTime: number,
     offPrice: number,
-    comment: string
+    comment: string,
   ) {
     this.genNum = genNum;
     this.endTime = endTime;
@@ -183,8 +182,8 @@ class GenFavCodeProcess {
       1,
       new Date().setDate(new Date().getDate() + 2),
       10,
-      "节日特惠"
-    )
+      "节日特惠",
+    ),
   ) {
     this.stat = stat;
     this.form = reactive(form);
@@ -269,7 +268,7 @@ class GetFavCodeProcess {
 
   async updateData() {
     const result = await this.getFavCodes();
-    this.tableData.length = 0;
+    this.tableData.splice(0, this.tableData.length);
     this.tableData.push(...result);
   }
 }
@@ -309,7 +308,7 @@ function createcolumusFrame(): DataTableColumns<RowData> {
                 isShowModify.value = true;
               },
             },
-            () => "详情"
+            () => "详情",
           ),
           h(
             NModal,
@@ -320,7 +319,7 @@ function createcolumusFrame(): DataTableColumns<RowData> {
                 isShowModify.value = false;
               },
             },
-            () => h(NCard, null, () => "hi")
+            () => h(NCard, null, () => "hi"),
           ),
           h(
             NPopover,
@@ -336,13 +335,13 @@ function createcolumusFrame(): DataTableColumns<RowData> {
                     tag: "div",
                     disabled: true,
                   },
-                  () => "删除"
+                  () => "删除",
                 );
               },
               default() {
                 return h("span", null, "只能删除*已过期*的记录");
               },
-            }
+            },
           ),
         ];
       },
