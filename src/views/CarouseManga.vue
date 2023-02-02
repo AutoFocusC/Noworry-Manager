@@ -49,9 +49,27 @@
       >
         <img
           class="carousel-img"
-          style="height: 73%"
           :src="detailList[modifyCoverProcess.stat.modifyingImgIndex.value]"
         />
+        <n-upload
+          :keep-file-after-finish="true"
+          :max="1"
+          list-type="image"
+          :on-remove="(op) => modifyCoverProcess.onFileRemove(op)"
+          :custom-request="(op) => modifyCoverProcess.onContentUpload(op)"
+        >
+          <n-button>上传图片</n-button>
+        </n-upload>
+        <n-button
+          type="primary"
+          @click="
+            () =>
+              modifyCoverProcess.onConfirmClick(
+                modifyCoverProcess.stat.contentFile,
+              )
+          "
+          >确认修改详情图</n-button
+        >
       </n-modal>
       <n-modal
         v-model:show="modifyCoverProcess.stat.isShowModifyModal.value"
@@ -64,6 +82,7 @@
         <n-form label-placement="left">
           <n-form-item label="待更改图片">
             <img
+              height="200"
               :src="coverList[modifyCoverProcess.stat.modifyingImgIndex.value]"
           /></n-form-item>
           <n-form-item label="上传新图片">
@@ -71,14 +90,20 @@
               :keep-file-after-finish="true"
               :max="1"
               list-type="image"
-              :custom-request="(op) => modifyCoverProcess.onUpload(op)"
+              :on-remove="(op) => modifyCoverProcess.onFileRemove(op)"
+              :custom-request="(op) => modifyCoverProcess.onCoverUpload(op)"
             >
               <n-button>上传图片</n-button>
             </n-upload>
           </n-form-item>
           <n-button
             type="primary"
-            @click="() => modifyCoverProcess.onConfirmClick()"
+            @click="
+              () =>
+                modifyCoverProcess.onConfirmClick(
+                  modifyCoverProcess.stat.coverFile,
+                )
+            "
             >确认</n-button
           >
         </n-form>
@@ -104,6 +129,7 @@ import {
   NP,
   NText,
 } from "naive-ui";
+import { FileInfo } from "naive-ui/es/upload/src/interface";
 import { ref, Ref } from "vue";
 type TSELECT_DEATIL = 0;
 type TSELECT_MODIFY = 1;
@@ -131,12 +157,14 @@ class CoverStatus {
   isShowModifyModal: Ref<boolean>;
   isShowDetailModal: Ref<boolean>;
   modifyingImgIndex: Ref<number>;
-  uploadFile: File | null;
+  coverFile: File | null;
+  contentFile: File | null;
   constructor() {
     this.isShowModifyModal = ref(false);
     this.modifyingImgIndex = ref(0);
-    this.uploadFile = null;
     this.isShowDetailModal = ref(false);
+    this.coverFile = null;
+    this.contentFile = null;
   }
 }
 class ModifyCoverProcess {
@@ -154,7 +182,7 @@ class ModifyCoverProcess {
       this.stat.isShowModifyModal.value = true;
     }
   }
-  onUpload(options: UploadCustomRequestOptions) {
+  onCoverUpload(options: UploadCustomRequestOptions) {
     if (options.file.file) {
       const { notification } = createDiscreteApi(["notification"]);
       //弹出提示
@@ -165,14 +193,29 @@ class ModifyCoverProcess {
           title: "图片大小大于10MB，将图片导致加载缓慢",
         });
       }
-      this.stat.uploadFile = options.file.file;
+      this.stat.coverFile = options.file.file;
     }
   }
-  async onConfirmClick() {
+  onContentUpload(options: UploadCustomRequestOptions) {
+    if (options.file.file) {
+      const { notification } = createDiscreteApi(["notification"]);
+      //弹出提示
+      if (options.file.file.size > 1024 * 10240) {
+        notification.create({
+          duration: 4000,
+          type: "warning",
+          title: "图片大小大于10MB，将图片导致加载缓慢",
+        });
+      }
+      this.stat.contentFile = options.file.file;
+    }
+  }
+  async onConfirmClick(file: File | null) {
     const { message } = createDiscreteApi(["message"]);
+    if (file === null) return message.error("上传失败");
     const formdata = new FormData();
     const serverPath = coverList[this.stat.modifyingImgIndex.value].split("/");
-    this.stat.uploadFile && formdata.append("img", this.stat.uploadFile);
+    file && formdata.append("img", file);
     formdata.append("path", serverPath[serverPath.length - 1]);
 
     //文件上传前静止提交表单
@@ -187,13 +230,21 @@ class ModifyCoverProcess {
         method: "POST",
         data: formdata,
       });
-      this.stat.uploadFile = null;
+      file = null;
       if (!data.status) message.error("上传失败");
     } catch (e) {
       //清除文件缓存
-      this.stat.uploadFile = null;
+      file = null;
       message.error("上传失败");
     }
+  }
+  onFileRemove(op: {
+    file: Required<FileInfo>;
+    fileList: Required<FileInfo>[];
+  }) {
+    //防止内存泄露
+    op.file.file = null;
+    this.stat.contentFile = this.stat.coverFile = null;
   }
 }
 const modifyCoverProcess = new ModifyCoverProcess();

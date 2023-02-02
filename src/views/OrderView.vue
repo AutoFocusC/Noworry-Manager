@@ -1,28 +1,82 @@
 <template>
   <div class="form-btns">
     <div class="btn">
-      <n-button round @click="updateData">刷新</n-button>
+      <n-button
+        @click="() => orderTableProcess.getOrderDataProcess()"
+        :loading="orderTableProcess.stat.tableIsLoading.value"
+        >刷新</n-button
+      >
     </div>
     <div class="btn">
-      <!-- <n-button v-for="(item, index) in typeGroup" :key="index">
-          {{ item.categoryName }}
-        </n-button> -->
-      <n-button><b>订单列表</b></n-button>
+      <n-button @click="() => historyDrawerProcess.onShowDrawer()"
+        >历史记录</n-button
+      >
     </div>
-    <div class="btn"></div>
+    <div class="btn">
+      <n-input
+        placeholder="搜索购买来源"
+        @input="(e) => orderTableProcess.onSearchInput(e)"
+      />
+    </div>
   </div>
   <div class="list">
-    <n-data-table :columns="columns" :data="data" :pagination="pagination" />
+    <n-data-table
+      :columns="columns"
+      :data="orderTableProcess.viewData.value"
+      :pagination="{
+        pageSize: 6,
+      }"
+    />
   </div>
+  <!-- 历史记录 -->
+  <n-drawer
+    v-model:show="historyDrawerProcess.stat.isShow.value"
+    width="50%"
+    placement="right"
+  >
+    <n-drawer-content title="历史记录">
+      <n-button @click="() => historyDrawerProcess.onDeleteHistory()"
+        >清空</n-button
+      >
+      <n-table :bordered="false" :single-line="false">
+        <thead>
+          <tr>
+            <th>操作时间</th>
+            <th>订单号</th>
+            <th>商品名</th>
+            <th>购买来源</th>
+          </tr>
+        </thead>
+        <tbody>
+          <TransitionGroup name="list">
+            <tr v-for="e in HistoryRecordProcess.history" :key="e.t">
+              <td>{{ new Date(Number(e.t)).toLocaleString() }}</td>
+              <td>{{ e.r.orderDetailId }}</td>
+              <td>{{ e.r.commodityName }}</td>
+              <td>{{ e.r.contact }}</td>
+            </tr>
+          </TransitionGroup>
+        </tbody>
+      </n-table>
+    </n-drawer-content>
+  </n-drawer>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, reactive, h } from "vue";
-import { NButton, NDataTable, NTag } from "naive-ui";
-import type { DataTableColumns, DataTableRowKey } from "naive-ui";
+<script lang="ts" setup>
+import { ref, reactive, h, Ref, computed, ComputedRef, onMounted } from "vue";
+import {
+  NButton,
+  NDataTable,
+  NTag,
+  NInput,
+  NDrawer,
+  NDrawerContent,
+  NTable,
+} from "naive-ui";
+import type { DataTableColumns } from "naive-ui";
 import axios from "axios";
 import route from "@/router";
-
+type HistoryRecord = { t: string; r: RowData };
 type RowData = {
   key: number;
   orderDetailId: number;
@@ -36,6 +90,45 @@ type RowData = {
   contact: string;
   createTime: string;
 };
+class HistoryDrawerStatus {
+  isShow: Ref<boolean>;
+  constructor() {
+    this.isShow = ref(false);
+  }
+}
+class HistoryRecordProcess {
+  stat: HistoryDrawerStatus;
+  static history: HistoryRecord[] = reactive([]);
+  constructor() {
+    this.stat = new HistoryDrawerStatus();
+    onMounted(() => {
+      HistoryRecordProcess.history.push(...HistoryRecordProcess.get());
+    });
+  }
+  onShowDrawer() {
+    this.stat.isShow.value = true;
+  }
+  onDeleteHistory() {
+    HistoryRecordProcess.history.splice(0, HistoryRecordProcess.history.length);
+    HistoryRecordProcess.save();
+  }
+  //历史记录数据形式: 'orderViewHistory':
+  //{key记录时的时间戳,value:RowData}[]
+  static set(value: RowData) {
+    HistoryRecordProcess.history.push({ t: Date.now().toString(), r: value });
+  }
+  static get(): HistoryRecord[] {
+    const res = localStorage.getItem("orderViewHistory");
+    if (!res) return [];
+    return JSON.parse(res);
+  }
+  static save() {
+    localStorage.setItem(
+      "orderViewHistory",
+      JSON.stringify(HistoryRecordProcess.history),
+    );
+  }
+}
 
 const createColumns = (): DataTableColumns<RowData> => [
   {
@@ -132,62 +225,80 @@ const createColumns = (): DataTableColumns<RowData> => [
     render(row) {
       return h(
         NButton,
-        { onClick: () => viewDetail(row) },
-        { default: () => "查看" }
+        {
+          class: HistoryRecordProcess.history.find(
+            (e) => e.r.orderDetailId === row.orderDetailId,
+          )
+            ? "looked"
+            : "",
+          onClick: () => orderTableProcess.onViewDetail(row),
+        },
+        { default: () => "查看" },
       );
     },
   },
 ];
 
-const viewDetail = function (row: RowData) {
-  route.push({
-    name: "detail",
-    query: { orderId: row.orderId, orderDetailId: row.orderDetailId },
-  });
-};
-
-const checkedRowKeysRef = ref<DataTableRowKey[]>([]);
-
-const data: RowData[] = reactive([]);
-
-const updateData = function () {
-  while (data.length) {
-    data.splice(0, 1);
+class OrderDataStatus {
+  tableIsLoading: Ref<boolean>;
+  filerCondition: Ref<string>; //搜索的条件
+  constructor() {
+    this.tableIsLoading = ref(true);
+    this.filerCondition = ref("");
   }
-  axios({
-    url: "/v2/mp/manager/order",
-  }).then((res) => {
-    res.data.reverse();
-    res.data.forEach((element: any) => {
-      element.orderDetailInfoGroup.forEach((i: any) => {
-        i.contact = element.contact;
-        i.orderTotalPrice = element.orderTotalPrice;
-        i.favourablePrice = element.favourablePrice;
-      });
-      data.push(...element.orderDetailInfoGroup);
+}
+
+class OrderTableProcess {
+  stat: OrderDataStatus;
+  rowData: RowData[];
+  viewData: ComputedRef<RowData[]>;
+  constructor() {
+    this.stat = new OrderDataStatus();
+    this.rowData = reactive([]);
+    this.viewData = computed(() => {
+      if (this.stat.filerCondition.value === "") return this.rowData;
+      return this.rowData.filter(
+        (e) => e.contact.indexOf(this.stat.filerCondition.value) !== -1,
+      );
     });
-  });
-};
+    this.getOrderDataProcess();
+  }
+  async getOrderDataProcess() {
+    this.stat.tableIsLoading.value = true;
+    //清空data
+    this.rowData.splice(0, this.rowData.length);
+    await axios({
+      url: "/v2/mp/manager/order",
+    }).then((res) => {
+      res.data.reverse();
+      res.data.forEach((element: any) => {
+        element.orderDetailInfoGroup.forEach((i: any) => {
+          i.contact = element.contact;
+          i.orderTotalPrice = element.orderTotalPrice;
+          i.favourablePrice = element.favourablePrice;
+        });
+        this.rowData.push(...element.orderDetailInfoGroup);
+      });
+    });
+    this.stat.tableIsLoading.value = false;
+  }
+  onSearchInput(e: string) {
+    this.stat.filerCondition.value = e;
+  }
+  async onViewDetail(row: RowData) {
+    await route.push({
+      name: "detail",
+      query: { orderId: row.orderId, orderDetailId: row.orderDetailId },
+    });
+    //加入跳转队列后才记录历史
+    HistoryRecordProcess.set(row);
+    HistoryRecordProcess.save();
+  }
+}
 
-export default defineComponent({
-  setup() {
-    updateData();
-
-    return {
-      data,
-      columns: createColumns(),
-      checkedRowKeys: checkedRowKeysRef,
-      pagination: {
-        pageSize: 6,
-      },
-      updateData,
-    };
-  },
-  components: {
-    NDataTable,
-    NButton,
-  },
-});
+const columns = createColumns();
+const orderTableProcess = new OrderTableProcess();
+const historyDrawerProcess = new HistoryRecordProcess();
 </script>
 
 <style>
@@ -200,11 +311,9 @@ export default defineComponent({
   width: 70vw;
   margin: 0 auto;
 }
-.form-btns .btn {
-  width: 23vw;
-}
+
 .list {
-  width: 75vw;
+  width: 70vw;
   margin: 0 auto;
 }
 
@@ -229,5 +338,22 @@ export default defineComponent({
   flex-direction: row;
   justify-content: space-around;
   margin: 0 auto;
+}
+.looked {
+  background-color: rgb(246, 236, 224);
+}
+.list-move, /* 对移动中的元素应用的过渡 */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+.list-leave-active {
+  position: absolute;
 }
 </style>
