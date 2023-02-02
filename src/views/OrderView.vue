@@ -51,7 +51,7 @@
           <TransitionGroup name="list">
             <tr v-for="e in HistoryRecordProcess.history" :key="e.t">
               <td>{{ new Date(Number(e.t)).toLocaleString() }}</td>
-              <td>{{ e.r.orderId }}</td>
+              <td>{{ e.r.orderDetailId }}</td>
               <td>{{ e.r.commodityName }}</td>
               <td>{{ e.r.contact }}</td>
             </tr>
@@ -227,7 +227,7 @@ const createColumns = (): DataTableColumns<RowData> => [
         NButton,
         {
           class: HistoryRecordProcess.history.find(
-            (e) => e.r.orderId === row.orderId,
+            (e) => e.r.orderDetailId === row.orderDetailId,
           )
             ? "looked"
             : "",
