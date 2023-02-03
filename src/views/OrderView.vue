@@ -16,7 +16,17 @@
       <n-input
         placeholder="搜索购买来源"
         @input="(e) => orderTableProcess.onSearchInput(e)"
-      />
+      >
+        <template #suffix>
+          <n-icon
+            :component="FlashOutline"
+            :class="{
+              flashAnimate:
+                orderTableProcess.stat.filerCondition.value.length > 0,
+            }"
+          />
+        </template>
+      </n-input>
     </div>
   </div>
   <div class="list">
@@ -24,7 +34,9 @@
       :columns="columns"
       :data="orderTableProcess.viewData.value"
       :pagination="{
-        pageSize: 6,
+        pageSize: OrderTableProcess.PAGESIZE,
+        page: orderTableProcess.stat.page.value,
+        'onUpdate:page': (p) => orderTableProcess.onPageUpdate(p),
       }"
     />
   </div>
@@ -41,7 +53,8 @@
       <n-table :bordered="false" :single-line="false">
         <thead>
           <tr>
-            <th>操作时间</th>
+            <th>跳转至该行</th>
+            <th>历史记录时间</th>
             <th>订单号</th>
             <th>商品名</th>
             <th>购买来源</th>
@@ -50,10 +63,20 @@
         <tbody>
           <TransitionGroup name="list">
             <tr v-for="e in HistoryRecordProcess.history" :key="e.t">
+              <td>
+                <n-button
+                  @click="
+                    () => {
+                      historyDrawerProcess.toPage(e, orderTableProcess);
+                    }
+                  "
+                  >跳转</n-button
+                >
+              </td>
               <td>{{ new Date(Number(e.t)).toLocaleString() }}</td>
               <td>{{ e.r.orderDetailId }}</td>
               <td>{{ e.r.commodityName }}</td>
-              <td>{{ e.r.contact }}</td>
+              <td>{{ e.r.contact.split(",")[0] }}</td>
             </tr>
           </TransitionGroup>
         </tbody>
@@ -72,7 +95,9 @@ import {
   NDrawer,
   NDrawerContent,
   NTable,
+  NIcon,
 } from "naive-ui";
+import { FlashOutline } from "@vicons/ionicons5";
 import type { DataTableColumns } from "naive-ui";
 import axios from "axios";
 import route from "@/router";
@@ -111,6 +136,18 @@ class HistoryRecordProcess {
   onDeleteHistory() {
     HistoryRecordProcess.history.splice(0, HistoryRecordProcess.history.length);
     HistoryRecordProcess.save();
+  }
+  toPage(row: HistoryRecord, orderTableProcess: OrderTableProcess) {
+    //为了跳转到对应的页面
+    const index =
+      orderTableProcess.viewData.value.findIndex(
+        (e) => e.orderDetailId === row.r.orderDetailId,
+      ) + 1;
+    console.log(index, orderTableProcess.rawData.length);
+    orderTableProcess.stat.page.value = Math.ceil(
+      index / OrderTableProcess.PAGESIZE,
+    );
+    this.stat.isShow.value = false;
   }
   //历史记录数据形式: 'orderViewHistory':
   //{key记录时的时间戳,value:RowData}[]
@@ -242,22 +279,25 @@ const createColumns = (): DataTableColumns<RowData> => [
 class OrderDataStatus {
   tableIsLoading: Ref<boolean>;
   filerCondition: Ref<string>; //搜索的条件
+  page: Ref<number>;
   constructor() {
     this.tableIsLoading = ref(true);
     this.filerCondition = ref("");
+    this.page = ref(1);
   }
 }
 
 class OrderTableProcess {
   stat: OrderDataStatus;
-  rowData: RowData[];
+  rawData: RowData[];
   viewData: ComputedRef<RowData[]>;
+  static PAGESIZE = 6;
   constructor() {
     this.stat = new OrderDataStatus();
-    this.rowData = reactive([]);
+    this.rawData = reactive([]);
     this.viewData = computed(() => {
-      if (this.stat.filerCondition.value === "") return this.rowData;
-      return this.rowData.filter(
+      if (this.stat.filerCondition.value === "") return this.rawData;
+      return this.rawData.filter(
         (e) => e.contact.indexOf(this.stat.filerCondition.value) !== -1,
       );
     });
@@ -266,7 +306,7 @@ class OrderTableProcess {
   async getOrderDataProcess() {
     this.stat.tableIsLoading.value = true;
     //清空data
-    this.rowData.splice(0, this.rowData.length);
+    this.rawData.splice(0, this.rawData.length);
     await axios({
       url: "/v2/mp/manager/order",
     }).then((res) => {
@@ -277,7 +317,7 @@ class OrderTableProcess {
           i.orderTotalPrice = element.orderTotalPrice;
           i.favourablePrice = element.favourablePrice;
         });
-        this.rowData.push(...element.orderDetailInfoGroup);
+        this.rawData.push(...element.orderDetailInfoGroup);
       });
     });
     this.stat.tableIsLoading.value = false;
@@ -293,6 +333,9 @@ class OrderTableProcess {
     //加入跳转队列后才记录历史
     HistoryRecordProcess.set(row);
     HistoryRecordProcess.save();
+  }
+  onPageUpdate(page: number) {
+    this.stat.page.value = page;
   }
 }
 
@@ -355,5 +398,16 @@ const historyDrawerProcess = new HistoryRecordProcess();
 }
 .list-leave-active {
   position: absolute;
+}
+@keyframes flash {
+  0% {
+    color: rgba(194, 194, 194, 1);
+  }
+  50% {
+    color: #18a058;
+  }
+}
+.flashAnimate {
+  animation: 1s ease-in-out infinite flash;
 }
 </style>

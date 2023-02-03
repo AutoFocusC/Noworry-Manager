@@ -1,4 +1,6 @@
-import { getCookie } from "@/method/cookie";import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import { getCookie } from "@/method/cookie";
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
@@ -18,6 +20,10 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/order",
+    beforeEnter(to) {
+      to.params.po = "hhh";
+      return true;
+    },
     component: () =>
       import(/* webpackPrefetch: true */ "@/views/OrderView.vue"),
   },

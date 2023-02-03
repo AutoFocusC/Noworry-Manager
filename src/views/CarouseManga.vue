@@ -3,6 +3,7 @@
     <header class="control-width">
       <n-carousel autoplay>
         <n-dropdown
+          draggable
           trigger="hover"
           :options="options"
           @select="
