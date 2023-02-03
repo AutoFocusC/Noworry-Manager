@@ -255,7 +255,7 @@ watch(
       editing.orderPaymentPrice = null;
     }
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 );
 const hideDialog = () => {
   dialog.value = false;
@@ -281,7 +281,6 @@ const getData = async function () {
   });
   const keys1 = Object.keys(data1.data);
   const keys2 = Object.keys(data2.data);
-  console.log(keys1, keys2);
 
   keys1.forEach((key) => (data[key] = data1.data[key]));
   keys2.forEach((key) => (data[key] = data2.data[key]));
