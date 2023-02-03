@@ -20,10 +20,6 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/order",
-    beforeEnter(to) {
-      to.params.po = "hhh";
-      return true;
-    },
     component: () =>
       import(/* webpackPrefetch: true */ "@/views/OrderView.vue"),
   },

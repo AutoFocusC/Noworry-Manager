@@ -143,7 +143,6 @@ class HistoryRecordProcess {
       orderTableProcess.viewData.value.findIndex(
         (e) => e.orderDetailId === row.r.orderDetailId,
       ) + 1;
-    console.log(index, orderTableProcess.rawData.length);
     orderTableProcess.stat.page.value = Math.ceil(
       index / OrderTableProcess.PAGESIZE,
     );
