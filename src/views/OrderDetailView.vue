@@ -4,12 +4,10 @@
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
         <path
           d="M590.0288 617.2672c44.9024-44.9024 86.2208-155.6992 94.208-245.0432 1.792-19.6608-15.104-35.7888-34.7648-33.9456-96.9728 9.216-199.3728 48.0256-244.8896 93.5424-51.2 51.2-51.2 134.2464 0 185.4464s134.2464 51.2 185.4464 0z"
-          fill="#F55C04"
-        />
+          fill="#F55C04" />
         <path
           d="M511.0784 920.1664c-225.0752 0-408.1664-183.0912-408.1664-408.1664s183.0912-408.1664 408.1664-408.1664 408.1664 183.0912 408.1664 408.1664-183.0912 408.1664-408.1664 408.1664z m0-754.8928C319.8976 165.2736 164.352 320.8192 164.352 512s155.5456 346.7264 346.7264 346.7264 346.7264-155.5456 346.7264-346.7264-155.5456-346.7264-346.7264-346.7264z"
-          fill="#333333"
-        />
+          fill="#333333" />
       </svg>
     </n-icon>
     <div>订单详情</div>
@@ -42,35 +40,33 @@
         <tr>
           <td>{{ data.remark }}</td>
           <td>
-            <n-tag
-              :type="
-                data.status == '0'
-                  ? 'error'
-                  : data.status == '1'
+            <n-tag :type="
+              data.status == '0'
+                ? 'error'
+                : data.status == '1'
                   ? 'warning'
                   : data.status == '2'
-                  ? 'success'
-                  : data.status == '3'
-                  ? 'info'
-                  : data.status == '4'
-                  ? 'info'
-                  : 'success'
-              "
-            >
+                    ? 'success'
+                    : data.status == '3'
+                      ? 'info'
+                      : data.status == '4'
+                        ? 'info'
+                        : 'success'
+            ">
               {{
                 data.status == "0"
                   ? "未支付"
                   : data.status == "1"
-                  ? "待填表"
-                  : data.status == "2"
-                  ? "已填表"
-                  : data.status == "3"
-                  ? "已审核"
-                  : data.status == "4"
-                  ? "已刷位"
-                  : data.status == "5"
-                  ? "已完成"
-                  : "加载中"
+                    ? "待填表"
+                    : data.status == "2"
+                      ? "已填表"
+                      : data.status == "3"
+                        ? "已审核"
+                        : data.status == "4"
+                          ? "已刷位"
+                          : data.status == "5"
+                            ? "已完成"
+                            : "加载中"
               }}
             </n-tag>
           </td>
@@ -94,12 +90,10 @@
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
         <path
           d="M590.0288 617.2672c44.9024-44.9024 86.2208-155.6992 94.208-245.0432 1.792-19.6608-15.104-35.7888-34.7648-33.9456-96.9728 9.216-199.3728 48.0256-244.8896 93.5424-51.2 51.2-51.2 134.2464 0 185.4464s134.2464 51.2 185.4464 0z"
-          fill="#F55C04"
-        />
+          fill="#F55C04" />
         <path
           d="M511.0784 920.1664c-225.0752 0-408.1664-183.0912-408.1664-408.1664s183.0912-408.1664 408.1664-408.1664 408.1664 183.0912 408.1664 408.1664-183.0912 408.1664-408.1664 408.1664z m0-754.8928C319.8976 165.2736 164.352 320.8192 164.352 512s155.5456 346.7264 346.7264 346.7264 346.7264-155.5456 346.7264-346.7264-155.5456-346.7264-346.7264-346.7264z"
-          fill="#333333"
-        />
+          fill="#333333" />
       </svg>
     </n-icon>
     <div>信息登记表</div>
@@ -128,39 +122,22 @@
     <n-button type="error" @click="deleteOrder()">删除订单</n-button>
   </div>
 
+  <div style="margin: 2vw" v-if="Number(data.status) < 4">
+    <n-button type="error" @click="refund()">退款</n-button>
+  </div>
+
   <div class="dialog" v-if="dialog">
-    <n-card
-      style="width: 600px"
-      title="订单复核"
-      :bordered="false"
-      size="huge"
-      role="dialog"
-      aria-modal="true"
-    >
-      <n-form
-        v-if="Number(data.status) == 0"
-        ref="formRef"
-        :model="editing"
-        label-placement="left"
-        label-width="auto"
-        require-mark-placement="right-hanging"
-        :style="{
+    <n-card style="width: 600px" title="订单复核" :bordered="false" size="huge" role="dialog" aria-modal="true">
+      <n-form v-if="Number(data.status) == 0" ref="formRef" :model="editing" label-placement="left" label-width="auto"
+        require-mark-placement="right-hanging" :style="{
           maxWidth: '640px',
-        }"
-      >
+        }">
         <n-form-item label="优惠价格" path="inputValue">
-          <n-input
-            v-model:value="editing.favourablePrice"
-            placeholder="请输入英镑价格"
-          />
+          <n-input v-model:value="editing.favourablePrice" placeholder="请输入英镑价格" />
         </n-form-item>
         <n-form-item label="实际支付" path="inputValue">
-          <n-input
-            v-model:value="editing.orderPaymentPrice"
-            :placeholder="`应为 ￡${
-              data.orderTotalPrice - data.favourablePrice
-            }`"
-          />
+          <n-input v-model:value="editing.orderPaymentPrice" :placeholder="`应为 ￡${data.orderTotalPrice - data.favourablePrice
+          }`" />
         </n-form-item>
 
         <n-form-item label="订单状态">
@@ -171,25 +148,13 @@
         </n-form-item>
       </n-form>
 
-      <n-form
-        v-if="Number(data.status) == 2"
-        ref="formRef"
-        :model="editing"
-        label-placement="left"
-        label-width="auto"
-        require-mark-placement="right-hanging"
-        :style="{
+      <n-form v-if="Number(data.status) == 2" ref="formRef" :model="editing" label-placement="left" label-width="auto"
+        require-mark-placement="right-hanging" :style="{
           maxWidth: '840px',
           height: '500px',
           overflow: 'auto',
-        }"
-      >
-        <n-form-item
-          v-for="(item, index) in formKeys"
-          :key="index"
-          :label="translate(item.name)"
-          path="inputValue"
-        >
+        }">
+        <n-form-item v-for="(item, index) in formKeys" :key="index" :label="translate(item.name)" path="inputValue">
           <n-input v-model:value="editing[item.name]" />
         </n-form-item>
       </n-form>
@@ -198,20 +163,8 @@
           <n-button round>取消</n-button>
         </div>
         <div class="btn">
-          <n-button
-            v-if="Number(data.status) == 0"
-            round
-            type="primary"
-            @click="submit()"
-            >保存</n-button
-          >
-          <n-button
-            v-if="Number(data.status) == 2"
-            round
-            type="primary"
-            @click="submit2()"
-            >保存</n-button
-          >
+          <n-button v-if="Number(data.status) == 0" round type="primary" @click="submit()">保存</n-button>
+          <n-button v-if="Number(data.status) == 2" round type="primary" @click="submit2()">保存</n-button>
         </div>
       </div>
     </n-card>
@@ -385,6 +338,14 @@ const deleteOrder = () => {
       });
   }
 };
+
+const refund = () => {
+  const psw = window.prompt("密码", "");
+  if (psw == "33") {
+    axios.post("/v1/mp/pay/order/refund", { openid: data.openid }).then((res)=>alert(JSON.stringify(res.data)))
+  }
+}
+
 const exportCsv = () => {
   axios
     .get(`/v2/mp/manager/order/export/${data.orderDetailId}`, {
